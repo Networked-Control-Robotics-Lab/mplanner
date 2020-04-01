@@ -15,8 +15,8 @@ find_package(
 generate_messages(DEPENDENCIES std_msgs)
 catkin_package(CATKIN_DEPENDS message_runtime)
 
-set(INC ./)
-set(SRC ./main.cpp)
+set(INC ./ ./lib/mavlink_v2/common)
+set(SRC ./main.cpp ./serial.cpp)
 
 include_directories(${catkin_INCLUDE_DIRS}  ${OpenCV_INCLUDE_DIRS} ${INC})
 add_executable(mplanner ${SRC})
