@@ -1,16 +1,20 @@
 #include <thread>
 #include <termios.h>
 #include "quadshell.hpp"
+#include "shell_cmds.hpp"
 
 void shell_cmd_help(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt);
 
 struct cmd_list_entry shell_cmd_list[] = {
-	{shell_cmd_help, "help"}
+	{shell_cmd_help, "help"},
+	{shell_cmd_clear, "clear"},
+	{shell_cmd_arm, "arm"},
+	{shell_cmd_disarm, "disarm"},
+	{shell_cmd_takeoff, "takeoff"},
+	{shell_cmd_land, "land"},
+	{shell_cmd_fly, "fly"},
+	{shell_cmd_traj, "traj"}
 };
-
-void shell_cmd_help(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
-{
-}
 
 void shell_greeting(void)
 {
