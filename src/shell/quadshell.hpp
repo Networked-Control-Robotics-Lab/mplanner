@@ -12,7 +12,7 @@
 #define HISTORY_MAX_SIZE 5
 
 #define SIZE_OF_SHELL_CMD_LIST(list) (sizeof(list) / sizeof(struct cmd_list_entry))
-#define DEF_SHELL_CMD(cmd_name) {.handler = shell_cmd_ ## cmd_name, .name = #cmd_name},
+#define DEF_SHELL_CMD(cmd_name) {shell_cmd_ ## cmd_name, #cmd_name},
 
 enum {
 	NULL_CH = 0,       /* null character */

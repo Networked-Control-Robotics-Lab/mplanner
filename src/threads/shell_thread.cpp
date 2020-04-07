@@ -6,14 +6,14 @@
 void shell_cmd_help(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt);
 
 struct cmd_list_entry shell_cmd_list[] = {
-	{shell_cmd_help, "help"},
-	{shell_cmd_clear, "clear"},
-	{shell_cmd_arm, "arm"},
-	{shell_cmd_disarm, "disarm"},
-	{shell_cmd_takeoff, "takeoff"},
-	{shell_cmd_land, "land"},
-	{shell_cmd_fly, "fly"},
-	{shell_cmd_traj, "traj"}
+	DEF_SHELL_CMD(help)
+	DEF_SHELL_CMD(clear)
+	DEF_SHELL_CMD(arm)
+	DEF_SHELL_CMD(disarm)
+	DEF_SHELL_CMD(takeoff)
+	DEF_SHELL_CMD(land)
+	DEF_SHELL_CMD(fly)
+	DEF_SHELL_CMD(traj)
 };
 
 void shell_greeting(void)

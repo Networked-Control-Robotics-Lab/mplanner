@@ -26,7 +26,9 @@ set(INC
 set(SRC
     ./src/main.cpp
     ./src/mavlink/serial.cpp
-    ./src/mavlink/publisher
+    ./src/mavlink/publisher.cpp
+    ./src/mavlink/receiver.cpp
+    ./src/mavlink/parser.cpp
     ./src/shell/quadshell.cpp
     ./src/shell/shell_cmds.cpp
     ./src/threads/shell_thread.cpp
