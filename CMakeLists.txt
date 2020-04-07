@@ -19,12 +19,14 @@ set(INC
     ./ 
     ./lib/mavlink_v2/common
     ./src
-    ./src/threads)
+    ./src/threads
+    ./src/mavlink
+    ./src/shell)
 
 set(SRC
     ./src/main.cpp
-    ./src/serial.cpp
-    ./src/quadshell.cpp
+    ./src/mavlink/serial.cpp
+    ./src/shell/quadshell.cpp
     ./src/threads/shell_thread.cpp
     ./src/threads/ros_thread.cpp)
 
