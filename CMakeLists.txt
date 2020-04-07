@@ -18,12 +18,15 @@ catkin_package(CATKIN_DEPENDS message_runtime)
 set(INC
     ./ 
     ./lib/mavlink_v2/common
-    ./src)
+    ./src
+    ./src/threads)
 
 set(SRC
     ./src/main.cpp
     ./src/serial.cpp
-    ./src/quadshell.cpp)
+    ./src/quadshell.cpp
+    ./src/threads/shell_thread.cpp
+    ./src/threads/ros_thread.cpp)
 
 include_directories(${catkin_INCLUDE_DIRS}  ${OpenCV_INCLUDE_DIRS} ${INC})
 add_executable(mplanner ${SRC})
