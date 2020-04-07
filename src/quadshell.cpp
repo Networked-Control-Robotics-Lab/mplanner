@@ -47,13 +47,12 @@ void shell_cls(void)
 	shell_puts("\x1b[H\x1b[2J");
 }
 
-void shell_init_struct(struct shell_struct *shell, char *prompt_msg, char *ret_cmd)
+void shell_init_struct(struct shell_struct *shell, const char *prompt_msg)
 {
 	shell->prompt_msg = prompt_msg;
 	shell->prompt_len = strlen(shell->prompt_msg);
 
 	shell->char_cnt = 0;
-	shell->buf = ret_cmd;
 
 	shell->cursor_pos = 0;
 	memset(shell->buf, '\0', CMD_LEN_MAX);
@@ -406,21 +405,23 @@ static void shell_split_cmd_token(char *cmd, char param_list[PARAM_LIST_SIZE_MAX
 	*param_cnt = param_list_index + 1;
 }
 
-void shell_cmd_exec(char *cmd, struct cmd_list_entry *cmd_list, int list_size)
+void shell_cmd_exec(struct shell_struct *shell, struct cmd_list_entry *cmd_list, int list_size)
 {
 	char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX] = {0};
 	int param_cnt;
-	shell_split_cmd_token(cmd, param_list, &param_cnt);
+	shell_split_cmd_token(shell->buf, param_list, &param_cnt);
 
 	int i;
 	for(i = 0; i < list_size; i++) {
 		if(strcmp(param_list[0], cmd_list[i].name) == 0) {
 			cmd_list[i].handler(param_list, param_cnt);
-			cmd[0] = '\0';
+			shell->buf[0] = '\0';
+			shell_reset_struct(shell);
 			return;
 		}
 	}
 
 	shell_unknown_cmd_handler(param_list, param_cnt);
-	cmd[0] = '\0';
+	shell->buf[0] = '\0';
+	shell_reset_struct(shell);
 }

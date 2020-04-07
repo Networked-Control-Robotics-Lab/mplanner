@@ -67,8 +67,8 @@ struct shell_struct {
 	int cursor_pos;
 	int char_cnt;
 	int prompt_len;
-	char *buf;
-	char *prompt_msg;
+	char buf[CMD_LEN_MAX];
+	const char *prompt_msg;
 
 	shell_history_t history[HISTORY_MAX_SIZE];
 	shell_history_t *history_top;
@@ -87,9 +87,9 @@ struct cmd_list_entry {
 
 char shell_getc(void);
 void shell_puts(const char *s);
-void shell_init_struct(struct shell_struct *_shell, char *prompt_msg, char *ret_cmd);
+void shell_init_struct(struct shell_struct *_shell, const char *prompt_msg);
 void shell_cls(void);
 void shell_cli(struct shell_struct *_shell);
-void shell_cmd_exec(char *cmd, struct cmd_list_entry *cmd_list, int list_size);
+void shell_cmd_exec(struct shell_struct *shell, struct cmd_list_entry *cmd_list, int list_size);
 
 #endif
