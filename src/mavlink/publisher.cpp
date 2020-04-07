@@ -9,11 +9,22 @@ static void send_mavlink_msg_to_serial(mavlink_message_t *msg)
 	serial_puts((char *)buf, len);
 }
 
+void send_mavlink_do_set_mode_cmd(uint8_t target_mode)
+{
+	uint8_t custom_mode = 0;
+	uint32_t custom_sub_mode = 0;
+
+	mavlink_message_t msg;
+	mavlink_msg_set_mode_pack_chan(0, 1, MAVLINK_COMM_0, &msg, target_mode, custom_mode,
+                                       custom_sub_mode);
+	send_mavlink_msg_to_serial(&msg);
+}
+
 void send_mavlink_takeoff_cmd(void)
 {
 	uint8_t target_sys = 0;
 	uint8_t target_comp = 0;
-	uint16_t cmd = 22; //mav_cmd_nav_takeoff
+	uint16_t cmd = MAV_CMD_NAV_TAKEOFF;
 	uint8_t confirm = 0;
 	float params[7] = {0};
 
@@ -28,7 +39,7 @@ void send_mavlink_land_cmd(void)
 {
 	uint8_t target_sys = 0;
 	uint8_t target_comp = 0;
-	uint16_t cmd = 23; //mav_cmd_nav_land
+	uint16_t cmd = MAV_CMD_NAV_LAND;
 	uint8_t confirm = 0;
 	float params[7];
 
@@ -57,7 +68,7 @@ void send_mavlink_goto_cmd(float *pos, float yaw)
 {
 	uint8_t target_sys = 0;
 	uint8_t target_comp = 0;
-	uint16_t cmd = 252; //mav_cmd_overide_goto
+	uint16_t cmd = MAV_CMD_OVERRIDE_GOTO;
 	uint8_t confirm = 0;
 	float params[7] = {0};
 
@@ -80,7 +91,7 @@ void send_mavlink_halt_cmd(float *pos)
 {
 	uint8_t target_sys = 0;
 	uint8_t target_comp = 0;
-	uint16_t cmd = 252; //mav_cmd_overide_goto
+	uint16_t cmd = MAV_CMD_OVERRIDE_GOTO;
 	uint8_t confirm = 0;
 	float params[7] = {0};
 
@@ -99,7 +110,7 @@ void send_mavlink_mission_resume_cmd()
 {
 	uint8_t target_sys = 0;
 	uint8_t target_comp = 0;
-	uint16_t cmd = 252; //mav_cmd_overide_goto
+	uint16_t cmd = MAV_CMD_OVERRIDE_GOTO;
 	uint8_t confirm = 0;
 	float params[7] = {0};
 
