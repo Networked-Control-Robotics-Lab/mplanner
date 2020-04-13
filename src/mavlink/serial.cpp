@@ -12,7 +12,7 @@ using namespace std;
 
 int serial_fd = 0;
 
-void serial_init(char *port_name, int baudrate)
+void serial_init(const char *port_name, int baudrate)
 {
 	//open the port
 	serial_fd = open(port_name, O_RDWR | O_NOCTTY | O_NONBLOCK);
@@ -54,4 +54,9 @@ void serial_init(char *port_name, int baudrate)
 void serial_puts(char *s, size_t size)
 {
 	write(serial_fd, s, size);
+}
+
+int serial_getc(char *c)
+{
+	return read(serial_fd, c, 1);
 }
