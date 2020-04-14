@@ -21,7 +21,8 @@ set(INC
     ./src
     ./src/threads
     ./src/mavlink
-    ./src/shell)
+    ./src/shell
+    ./src/trajectory)
 
 set(SRC
     ./src/main.cpp
@@ -34,7 +35,8 @@ set(SRC
     ./src/shell/shell_cmds.cpp
     ./src/threads/shell_thread.cpp
     ./src/threads/ros_thread.cpp
-    ./src/threads/mavlink_thread.cpp)
+    ./src/threads/mavlink_thread.cpp
+    ./src/trajectory/trajectory.cpp)
 
 include_directories(${catkin_INCLUDE_DIRS}  ${OpenCV_INCLUDE_DIRS} ${INC})
 add_executable(mplanner ${SRC})

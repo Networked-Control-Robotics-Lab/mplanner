@@ -1,7 +1,17 @@
+#include <thread>
+#include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <signal.h>
 #include "../mavlink/publisher.hpp"
 #include "quadshell.hpp"
+#include "trajectory.hpp"
+
+#define TRAJECTORY_WP_NUM 10000
+
+trajectory_wp_t trajectory_wp[TRAJECTORY_WP_NUM];
+
+bool trajectory_follow_halt = false;
 
 void shell_cmd_help(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
@@ -58,11 +68,13 @@ void shell_cmd_fly(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int para
 {
 }
 
-static void publish_trajectory_waypoints(void)
+void command_uav_follow_trajectory_waypoints(void)
 {
-	while(1) {
-		
+	while(trajectory_follow_halt == false) {
+		printf("test\n\r");
+		usleep(1000000);
 	}
+	trajectory_follow_halt = false;
 }
 
 void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
@@ -73,7 +85,13 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 	shell_cli(&shell);
 
 	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
-		publish_trajectory_waypoints();			
+		generate_circular_trajectory(trajectory_wp, TRAJECTORY_WP_NUM, 1.5f);
+		std::thread trajectory_commander_thread(command_uav_follow_trajectory_waypoints);
+
+		trajectory_commander_thread.detach();
+
+		while(getchar() != 'q');
+		trajectory_follow_halt = true;
 	} else {
 		printf("abort.\n\r");
 	}

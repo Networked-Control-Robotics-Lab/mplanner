@@ -11,8 +11,12 @@ extern uav_pose_t uav_pose; //receive new uav pose via mavlink
 
 nav_msgs::Path path;
 
+bool trajectory_mutex;
+
 void ros_trajectory_waypoint_push_back(float x, float y, float z)
 {
+	trajectory_mutex = true;
+
 	ros::Time current_time = ros::Time::now();
 
 	geometry_msgs::PoseStamped new_point;
@@ -31,18 +35,8 @@ void ros_trajectory_waypoint_push_back(float x, float y, float z)
 	new_point.header.frame_id = "origin";
 
 	path.poses.push_back(new_point);
-}
 
-void generate_circular_trajectory(int waypoint_count, float height)
-{
-	float x, y;
-	float diameter = 0.6; //[m]
-	float angular_velocity = 2 * M_PI / waypoint_count;
-	for(int i = 0; i < waypoint_count; i++) {
-		x = diameter * cos(i * angular_velocity);
-		y = diameter * sin(i * angular_velocity);
-		ros_trajectory_waypoint_push_back(x, y , height);
-	}
+	trajectory_mutex = false;
 }
 
 void ros_thread_entry()
@@ -66,9 +60,9 @@ void ros_thread_entry()
 	ros::Rate ros_timer(120);
 
 	while(ros::ok()) {
-		/* generate trajectory */
-		generate_circular_trajectory(10000, 1.5);
-		path_pub.publish(path);
+		if(trajectory_mutex == false) {
+			path_pub.publish(path);
+		}
 
 		/* send current uav pose message */
 		tf::Matrix3x3 R;
