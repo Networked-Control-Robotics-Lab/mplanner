@@ -28,9 +28,21 @@ void ros_trajectory_waypoint_push_back(float x, float y, float z)
 	new_point.pose.orientation.z = 0.0f; //quat.z;
 
 	new_point.header.stamp = current_time;
-	new_point.header.frame_id = "world";
+	new_point.header.frame_id = "origin";
 
 	path.poses.push_back(new_point);
+}
+
+void generate_circular_trajectory(int waypoint_count, float height)
+{
+	float x, y;
+	float diameter = 0.6; //[m]
+	float angular_velocity = 2 * M_PI / waypoint_count;
+	for(int i = 0; i < waypoint_count; i++) {
+		x = diameter * cos(i * angular_velocity);
+		y = diameter * sin(i * angular_velocity);
+		ros_trajectory_waypoint_push_back(x, y , height);
+	}
 }
 
 void ros_thread_entry()
@@ -42,7 +54,7 @@ void ros_thread_entry()
 	tf::Transform transform;
 
 	path.header.stamp = ros::Time::now();
-	path.header.frame_id = "world";
+	path.header.frame_id = "origin";
 
 	double x = 0.0f;
 	double y = 0.0f;
@@ -54,16 +66,8 @@ void ros_thread_entry()
 	ros::Rate ros_timer(120);
 
 	while(ros::ok()) {
-		/* generate new point of trajectory */
-		double dt = 0.1;
-		double delta_x = (vx * cos(th) - vy * sin(th)) * dt;
-		double delta_y = (vx * sin(th) + vy * cos(th)) * dt;
-
-		x += delta_x;
-		y += delta_y;
-		th += vth;
-
-		ros_trajectory_waypoint_push_back(x, y , 1.5);
+		/* generate trajectory */
+		generate_circular_trajectory(10000, 1.5);
 		path_pub.publish(path);
 
 		/* send current uav pose message */
@@ -75,7 +79,7 @@ void ros_thread_entry()
 		transform.setRotation(q);
 
 		tf_broadcaster.sendTransform(
-			tf::StampedTransform(transform, ros::Time::now(),"origin", "world"));
+			tf::StampedTransform(transform, ros::Time::now(),"origin", "uav"));
 
 		ros_timer.sleep();
 	}
