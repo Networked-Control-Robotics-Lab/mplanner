@@ -6,7 +6,7 @@ uav_pose_t uav_pose;
 
 void mavlink_attitude_quaternion_handler(mavlink_message_t *received_msg)
 {
-	ROS_INFO("[mavlink]received attitude message.");
+	//ROS_INFO("[mavlink]received attitude message.");
 
 	mavlink_attitude_quaternion_t attitude_quaternion;
 	mavlink_msg_attitude_quaternion_decode(received_msg, &attitude_quaternion);
@@ -19,7 +19,7 @@ void mavlink_attitude_quaternion_handler(mavlink_message_t *received_msg)
 
 void mavlink_local_position_ned_handler(mavlink_message_t *received_msg)
 {
-	ROS_INFO("[mavlink]received local position message.");
+	//ROS_INFO("[mavlink]received local position message.");
 
 	mavlink_local_position_ned_t position_ned;
 	mavlink_msg_local_position_ned_decode(received_msg, &position_ned);
