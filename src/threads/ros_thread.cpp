@@ -9,20 +9,39 @@
 
 extern uav_pose_t uav_pose; //receive new uav pose via mavlink
 
+nav_msgs::Path path;
+
+void ros_trajectory_waypoint_push_back(float x, float y, float z)
+{
+	ros::Time current_time = ros::Time::now();
+
+	geometry_msgs::PoseStamped new_point;
+	new_point.pose.position.x = x;
+	new_point.pose.position.y = y;
+	new_point.pose.position.z = z;
+
+	//geometry_msgs::Quaternion quat = tf::createQuaternionMsgFromYaw(th);
+	geometry_msgs::Quaternion quat;
+	new_point.pose.orientation.w = 1.0f; //quat.w;
+	new_point.pose.orientation.x = 0.0f; //quat.x;
+	new_point.pose.orientation.y = 0.0f; //quat.y;
+	new_point.pose.orientation.z = 0.0f; //quat.z;
+
+	new_point.header.stamp = current_time;
+	new_point.header.frame_id = "world";
+
+	path.poses.push_back(new_point);
+}
+
 void ros_thread_entry()
 {
 	ros::NodeHandle node;
 	ros::Publisher path_pub = node.advertise<nav_msgs::Path>("trajectory", 1, true);
 
-	ros::Time current_time, last_time;
-	current_time = ros::Time::now();
-	last_time = ros::Time::now();
-
 	tf::TransformBroadcaster tf_broadcaster;
 	tf::Transform transform;
 
-	nav_msgs::Path path;
-	path.header.stamp = current_time;
+	path.header.stamp = ros::Time::now();
 	path.header.frame_id = "world";
 
 	double x = 0.0f;
@@ -36,8 +55,6 @@ void ros_thread_entry()
 
 	while(ros::ok()) {
 		/* generate new point of trajectory */
-		current_time = ros::Time::now();
-
 		double dt = 0.1;
 		double delta_x = (vx * cos(th) - vy * sin(th)) * dt;
 		double delta_y = (vx * sin(th) + vy * cos(th)) * dt;
@@ -46,21 +63,7 @@ void ros_thread_entry()
 		y += delta_y;
 		th += vth;
 
-		geometry_msgs::PoseStamped new_point;
-		new_point.pose.position.x = x;
-		new_point.pose.position.y = y;
-		
-		geometry_msgs::Quaternion quat = tf::createQuaternionMsgFromYaw(th);
-		new_point.pose.orientation.w = quat.w;
-		new_point.pose.orientation.x = quat.x;
-		new_point.pose.orientation.y = quat.y;
-		new_point.pose.orientation.z = quat.z;
-
-		new_point.header.stamp = current_time;
-		new_point.header.frame_id = "world";
-
-		path.poses.push_back(new_point);
-
+		ros_trajectory_waypoint_push_back(x, y , 1.5);
 		path_pub.publish(path);
 
 		/* send current uav pose message */

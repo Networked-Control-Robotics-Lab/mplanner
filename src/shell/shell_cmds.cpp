@@ -58,6 +58,24 @@ void shell_cmd_fly(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int para
 {
 }
 
+static void publish_trajectory_waypoints(void)
+{
+	while(1) {
+		
+	}
+}
+
 void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
+	char user_agree[CMD_LEN_MAX];
+	struct shell_struct shell;
+	shell_init_struct(&shell, "confirm trajectory following command [y/n]: ");
+	shell_cli(&shell);
+
+	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
+		publish_trajectory_waypoints();			
+	} else {
+		printf("abort.\n\r");
+	}
+
 }
