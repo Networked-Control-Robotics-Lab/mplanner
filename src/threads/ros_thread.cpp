@@ -5,6 +5,10 @@
 #include <nav_msgs/Path.h>
 #include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/PoseStamped.h>
+#include "pose.hpp"
+
+extern uav_pose_t uav_pose; //receive new uav pose via mavlink
+
 void ros_thread_entry()
 {
 	ros::NodeHandle node;
@@ -29,6 +33,7 @@ void ros_thread_entry()
 	double vth = 0.1f;
 
 	ros::Rate ros_timer(120);
+
 	while(ros::ok()) {
 		/* generate new point of trajectory */
 		current_time = ros::Time::now();
@@ -58,15 +63,12 @@ void ros_thread_entry()
 
 		path_pub.publish(path);
 
-			/* send current uav pose message */
+		/* send current uav pose message */
 		tf::Matrix3x3 R;
-		R.setValue(1, 0, 0,
-        	           0, 1, 0,
-	                   0, 0 ,1);
-		tf::Quaternion q;
-		R.getRotation(q);
+		tf::Quaternion q(uav_pose.q[1], uav_pose.q[2], uav_pose.q[3], uav_pose.q[0]);
 
-		transform.setOrigin(tf::Vector3(0, 0, 0));
+		transform.setOrigin(tf::Vector3(
+			uav_pose.pos_ned[0], uav_pose.pos_ned[1], uav_pose.pos_ned[2]));
 		transform.setRotation(q);
 
 		tf_broadcaster.sendTransform(

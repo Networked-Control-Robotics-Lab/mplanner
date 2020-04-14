@@ -2,12 +2,12 @@
 #include "../mavlink/receiver.hpp"
 
 enum ENUM_MAV_CMDS {
-	ENUM_HANDLER_FUNC(mavlink_attitude_handler),
+	ENUM_HANDLER_FUNC(mavlink_attitude_quaternion_handler),
 	ENUM_HANDLER_FUNC(mavlink_local_position_ned_handler)
 };
 
 struct mavlink_parser_item cmd_list[] = {
-	MAV_CMD_DEF(mavlink_attitude_handler, 30),
+	MAV_CMD_DEF(mavlink_attitude_quaternion_handler, 31),
 	MAV_CMD_DEF(mavlink_local_position_ned_handler, 32),
 };
 

@@ -25,6 +25,7 @@ set(INC
 
 set(SRC
     ./src/main.cpp
+    ./src/pose.cpp
     ./src/mavlink/serial.cpp
     ./src/mavlink/publisher.cpp
     ./src/mavlink/receiver.cpp
