@@ -1,3 +1,4 @@
+#include <string.h>
 #include <stdio.h>
 #include "../mavlink/publisher.hpp"
 #include "quadshell.hpp"
@@ -21,16 +22,36 @@ void shell_cmd_disarm(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int p
 
 void shell_cmd_takeoff(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
-	send_mavlink_takeoff_cmd();
+	char user_agree[CMD_LEN_MAX];
+	struct shell_struct shell;
+	shell_init_struct(&shell, "confirm takeoff command [y/n]: ");
+	shell_cli(&shell);
 
-	printf("takeoff mavlink message is sent.\n\r");
+	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
+		send_mavlink_takeoff_cmd();
+		printf("takeoff mavlink message is sent.\n\r");
+
+		//TODO:receive ack message
+	} else {
+		printf("abort.\n\r");
+	}
 }
 
 void shell_cmd_land(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
-	send_mavlink_land_cmd();
+	struct shell_struct shell;
+	shell_init_struct(&shell, "confirm landing command [y/n]: ");
+	shell_cli(&shell);
 
-	printf("landing mavlink message is sent.\n\r");
+	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
+		send_mavlink_land_cmd();
+
+		printf("landing mavlink message is sent.\n\r");
+
+		//TODO:receive ack message
+	} else {
+		printf("abort.\n\r");
+	}
 }
 
 void shell_cmd_fly(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
