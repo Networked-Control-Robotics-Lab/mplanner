@@ -76,7 +76,10 @@ void command_uav_follow_trajectory_waypoints(void)
 
 	int wp_num = 0;
 	while(trajectory_follow_halt == false) {
-		if(wp_num == TRAJECTORY_WP_NUM) return;
+		if(wp_num == TRAJECTORY_WP_NUM) {
+			printf("press [q] to leave.\n\r");
+			return;
+		}
 
 		send_mavlink_position_target(trajectory_wp[wp_num].pos,
 			trajectory_wp[wp_num].vel,
@@ -86,7 +89,7 @@ void command_uav_follow_trajectory_waypoints(void)
 
 		wp_num++;
 
-		//shell_puts("new waypoint is sent.\n\r");
+		printf("waypoint #%d is sent.\n\r", wp_num);
 		usleep(sleep_time);
 	}
 	trajectory_follow_halt = false;
