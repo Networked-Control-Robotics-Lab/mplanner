@@ -15,7 +15,7 @@ bool trajectory_mutex;
 
 void ros_trajectory_waypoint_push_back(float x, float y, float z)
 {
-	trajectory_mutex = true;
+	while(trajectory_mutex == true);
 
 	ros::Time current_time = ros::Time::now();
 
@@ -35,8 +35,6 @@ void ros_trajectory_waypoint_push_back(float x, float y, float z)
 	new_point.header.frame_id = "origin";
 
 	path.poses.push_back(new_point);
-
-	trajectory_mutex = false;
 }
 
 void ros_thread_entry()
@@ -50,19 +48,12 @@ void ros_thread_entry()
 	path.header.stamp = ros::Time::now();
 	path.header.frame_id = "origin";
 
-	double x = 0.0f;
-	double y = 0.0f;
-	double th = 0.0f;
-	double vx = 0.1f;
-	double vy = -0.1f;
-	double vth = 0.1f;
-
 	ros::Rate ros_timer(120);
 
 	while(ros::ok()) {
-		if(trajectory_mutex == false) {
-			path_pub.publish(path);
-		}
+		trajectory_mutex = true;
+		path_pub.publish(path);
+		trajectory_mutex = false;
 
 		/* send current uav pose message */
 		tf::Matrix3x3 R;
