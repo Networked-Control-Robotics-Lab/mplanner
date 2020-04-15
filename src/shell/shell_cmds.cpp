@@ -7,7 +7,9 @@
 #include "quadshell.hpp"
 #include "trajectory.hpp"
 
-#define TRAJECTORY_WP_NUM 10000
+#define WAYPOINT_UPDATE_RATE 50 //[Hz]
+#define TRAJECTORY_TRAVEL_TIME 30 //[second]
+#define TRAJECTORY_WP_NUM (WAYPOINT_UPDATE_RATE * TRAJECTORY_TRAVEL_TIME)
 
 trajectory_wp_t trajectory_wp[TRAJECTORY_WP_NUM];
 
@@ -70,9 +72,22 @@ void shell_cmd_fly(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int para
 
 void command_uav_follow_trajectory_waypoints(void)
 {
+	useconds_t sleep_time = 1000000 * (1.0f / (float)WAYPOINT_UPDATE_RATE);
+
+	int wp_num = 0;
 	while(trajectory_follow_halt == false) {
-		//printf("test\n\r");
-		//usleep(1000000);
+		if(wp_num == TRAJECTORY_WP_NUM) return;
+
+		send_mavlink_position_target(trajectory_wp[wp_num].pos,
+			trajectory_wp[wp_num].vel,
+			trajectory_wp[wp_num].acc,
+			trajectory_wp[wp_num].yaw,
+			trajectory_wp[wp_num].yaw_rate);
+
+		wp_num++;
+
+		//shell_puts("new waypoint is sent.\n\r");
+		usleep(sleep_time);
 	}
 	trajectory_follow_halt = false;
 }
@@ -85,6 +100,8 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 	shell_cli(&shell);
 
 	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
+		shell_puts("press [q] to leave.\n\r");
+
 		generate_circular_trajectory(trajectory_wp, TRAJECTORY_WP_NUM, 1.5f);
 		std::thread trajectory_commander_thread(command_uav_follow_trajectory_waypoints);
 
