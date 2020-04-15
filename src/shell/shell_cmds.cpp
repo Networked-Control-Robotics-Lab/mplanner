@@ -105,7 +105,9 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
 		shell_puts("press [q] to leave.\n\r");
 
-		generate_circular_trajectory(trajectory_wp, TRAJECTORY_WP_NUM, 1.5f);
+		send_mavlink_trajectory_following_cmd(true);
+
+		generate_circular_trajectory(trajectory_wp, TRAJECTORY_WP_NUM, 0.6f);
 		std::thread trajectory_commander_thread(command_uav_follow_trajectory_waypoints);
 
 		trajectory_commander_thread.detach();
