@@ -6,17 +6,18 @@
 #include <geometry_msgs/Quaternion.h>
 #include <geometry_msgs/PoseStamped.h>
 #include "pose.hpp"
+#include <mutex>
 
 extern uav_pose_t uav_pose; //receive new uav pose via mavlink
 
 nav_msgs::Path path;
 
-bool trajectory_mutex;
+std::mutex trajectory_msg_mutex;
 
 void ros_trajectory_waypoint_push_back(float x, float y, float z)
 {
-	while(trajectory_mutex == true);
-
+	/* using mutex to protect trajectory publisher */
+	trajectory_msg_mutex.lock();
 	ros::Time current_time = ros::Time::now();
 
 	geometry_msgs::PoseStamped new_point;
@@ -35,6 +36,7 @@ void ros_trajectory_waypoint_push_back(float x, float y, float z)
 	new_point.header.frame_id = "origin";
 
 	path.poses.push_back(new_point);
+	trajectory_msg_mutex.unlock();
 }
 
 void ros_thread_entry()
@@ -51,9 +53,10 @@ void ros_thread_entry()
 	ros::Rate ros_timer(120);
 
 	while(ros::ok()) {
-		trajectory_mutex = true;
+		/* using mutex to protect trajectory publisher */
+		trajectory_msg_mutex.lock();
 		path_pub.publish(path);
-		trajectory_mutex = false;
+		trajectory_msg_mutex.unlock();
 
 		/* send current uav pose message */
 		tf::Matrix3x3 R;
