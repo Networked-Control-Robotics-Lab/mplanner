@@ -11,8 +11,6 @@ uint8_t received_mavlink_msg;
 
 void mavlink_thread_entry(void)
 {
-	serial_init("/dev/ttyUSB1", 115200);
-
 	char c;
 	while(1) {
 		if(serial_getc(&c) != -1) {

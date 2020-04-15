@@ -71,8 +71,8 @@ void shell_cmd_fly(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int para
 void command_uav_follow_trajectory_waypoints(void)
 {
 	while(trajectory_follow_halt == false) {
-		printf("test\n\r");
-		usleep(1000000);
+		//printf("test\n\r");
+		//usleep(1000000);
 	}
 	trajectory_follow_halt = false;
 }

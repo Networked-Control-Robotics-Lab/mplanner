@@ -5,6 +5,7 @@
 #include "shell_thread.hpp"
 #include "mavlink_thread.hpp"
 #include "pose.hpp"
+#include "serial.hpp"
 
 extern uav_pose_t uav_pose;
 
@@ -12,6 +13,8 @@ int main(int argc, char **argv)
 {
 	ros::init(argc, argv, "mplanner");
 	ros::Time::init();
+
+	serial_init("/dev/ttyUSB1", 115200);
 
 	init_uav_pose(&uav_pose);
 
