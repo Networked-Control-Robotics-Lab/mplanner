@@ -5,6 +5,8 @@ set(CMAKE_BUILD_TYPE Debug)
 set(ROS_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "-std=c++0x  -g -static-libstdc++")
 
+find_package(PythonLibs REQUIRED)
+
 find_package(
     catkin REQUIRED COMPONENTS
     std_msgs
@@ -36,9 +38,10 @@ set(SRC
     ./src/threads/shell_thread.cpp
     ./src/threads/ros_thread.cpp
     ./src/threads/mavlink_thread.cpp
+    ./src/trajectory/traj_optimizer.cpp
     ./src/trajectory/trajectory.cpp)
 
-include_directories(${catkin_INCLUDE_DIRS}  ${OpenCV_INCLUDE_DIRS} ${INC})
 add_executable(mplanner ${SRC})
-target_link_libraries (mplanner ${catkin_LIBRARIES})
+include_directories(${catkin_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIR} ./lib/cvxopt ${INC})
+target_link_libraries (mplanner ${PYTHON_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(mplanner ${PROJECT_NAME}_generate_messages_cpp)
