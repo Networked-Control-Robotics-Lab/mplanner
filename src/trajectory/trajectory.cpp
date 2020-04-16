@@ -1,7 +1,7 @@
 #include "math.h"
 #include "trajectory.hpp"
 #include "ros_thread.hpp"
-#include "traj_optimizer.hpp"
+#include "planner.hpp"
 
 void generate_circular_trajectory(trajectory_wp_t *wp_list, int waypoint_count, float height)
 {

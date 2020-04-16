@@ -38,7 +38,7 @@ set(SRC
     ./src/threads/shell_thread.cpp
     ./src/threads/ros_thread.cpp
     ./src/threads/mavlink_thread.cpp
-    ./src/trajectory/traj_optimizer.cpp
+    ./src/trajectory/planner.cpp
     ./src/trajectory/trajectory.cpp)
 
 add_executable(mplanner ${SRC})

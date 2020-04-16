@@ -5,7 +5,7 @@
 #include <Python.h>
 #include <iostream>
 #include "cvxopt.h"
-#include "traj_optimizer.hpp"
+#include "planner.hpp"
 
 using namespace Eigen;
 
