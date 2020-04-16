@@ -7,7 +7,7 @@
 #include "quadshell.hpp"
 #include "trajectory.hpp"
 
-#define WAYPOINT_UPDATE_RATE 50 //[Hz]
+#define WAYPOINT_UPDATE_RATE 1 //[Hz]
 #define TRAJECTORY_TRAVEL_TIME 30 //[second]
 #define TRAJECTORY_WP_NUM (WAYPOINT_UPDATE_RATE * TRAJECTORY_TRAVEL_TIME)
 
@@ -92,6 +92,14 @@ void command_uav_follow_trajectory_waypoints(void)
 		printf("waypoint #%d is sent.\n\r", wp_num);
 		usleep(sleep_time);
 	}
+
+	send_mavlink_trajectory_following_cmd(false);
+	sleep(0.5);
+	send_mavlink_trajectory_following_cmd(false);
+	sleep(0.5);
+	send_mavlink_trajectory_following_cmd(false);
+	sleep(0.5);
+
 	trajectory_follow_halt = false;
 }
 
@@ -106,6 +114,11 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		shell_puts("press [q] to leave.\n\r");
 
 		send_mavlink_trajectory_following_cmd(true);
+		sleep(0.5);
+		send_mavlink_trajectory_following_cmd(true);
+		sleep(0.5);
+		send_mavlink_trajectory_following_cmd(true);
+		sleep(0.5);
 
 		generate_circular_trajectory(trajectory_wp, TRAJECTORY_WP_NUM, 0.6f);
 		std::thread trajectory_commander_thread(command_uav_follow_trajectory_waypoints);
