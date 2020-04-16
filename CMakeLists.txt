@@ -19,7 +19,7 @@ catkin_package(CATKIN_DEPENDS message_runtime)
 
 set(INC
     ./ 
-    ./lib/mavlink_v2/common
+    ./src/lib/mavlink_v2/common
     ./src
     ./src/threads
     ./src/mavlink
@@ -42,6 +42,6 @@ set(SRC
     ./src/trajectory/trajectory.cpp)
 
 add_executable(mplanner ${SRC})
-include_directories(${catkin_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIR} ./lib/cvxopt ${INC})
+include_directories(${catkin_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIR} ./src/lib/cvxopt ${INC})
 target_link_libraries (mplanner ${PYTHON_LIBRARIES} ${catkin_LIBRARIES})
 add_dependencies(mplanner ${PROJECT_NAME}_generate_messages_cpp)
