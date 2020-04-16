@@ -21,8 +21,8 @@ void send_mavlink_trajectory_following_cmd(bool enabled)
 
 	mavlink_message_t msg;
 	mavlink_msg_command_long_pack_chan(0, 1, MAVLINK_COMM_0, &msg, target_sys, target_comp,
-                                           cmd, confirm, params[0], params[1], params[2], params[3],
-                                           params[4], params[5], params[6]);
+	                                   cmd, confirm, params[0], params[1], params[2], params[3],
+	                                   params[4], params[5], params[6]);
 	send_mavlink_msg_to_serial(&msg);
 }
 
@@ -36,8 +36,8 @@ void send_mavlink_takeoff_cmd(void)
 
 	mavlink_message_t msg;
 	mavlink_msg_command_long_pack_chan(0, 1, MAVLINK_COMM_0, &msg, target_sys, target_comp,
-                                           cmd, confirm, params[0], params[1], params[2], params[3],
-                                           params[4], params[5], params[6]);
+	                                   cmd, confirm, params[0], params[1], params[2], params[3],
+	                                   params[4], params[5], params[6]);
 	send_mavlink_msg_to_serial(&msg);
 }
 
@@ -51,8 +51,8 @@ void send_mavlink_land_cmd(void)
 
 	mavlink_message_t msg;
 	mavlink_msg_command_long_pack_chan(0, 1, MAVLINK_COMM_0, &msg, target_sys, target_comp,
-                                           cmd, confirm, params[0], params[1], params[2], params[3],
-                                           params[4], params[5], params[6]);
+	                                   cmd, confirm, params[0], params[1], params[2], params[3],
+	                                   params[4], params[5], params[6]);
 	send_mavlink_msg_to_serial(&msg);
 }
 
@@ -64,8 +64,8 @@ void send_mavlink_trajectory_waypoint(float *pos, float *vel, float *acc, float 
 
 	mavlink_message_t msg;
 	mavlink_msg_trajectory_representation_waypoints_pack_chan(0, 1, MAVLINK_COMM_0, &msg,
-		time_usec, valid_points, &pos[0], &pos[1], &pos[2], &vel[0], &vel[1], &vel[2],
-		&acc[0], &acc[1], &acc[2], &yaw, &yaw_rate, &cmd);
+	                time_usec, valid_points, &pos[0], &pos[1], &pos[2], &vel[0], &vel[1], &vel[2],
+	                &acc[0], &acc[1], &acc[2], &yaw, &yaw_rate, &cmd);
 
 	send_mavlink_msg_to_serial(&msg);
 }
@@ -88,8 +88,8 @@ void send_mavlink_goto_cmd(float *pos, float yaw)
 
 	mavlink_message_t msg;
 	mavlink_msg_command_long_pack_chan(0, 1, MAVLINK_COMM_0, &msg, target_sys, target_comp,
-                                           cmd, confirm, params[0], params[1], params[2], params[3],
-                                           params[4], params[5], params[6]);
+	                                   cmd, confirm, params[0], params[1], params[2], params[3],
+	                                   params[4], params[5], params[6]);
 	send_mavlink_msg_to_serial(&msg);
 }
 
@@ -107,8 +107,8 @@ void send_mavlink_halt_cmd(float *pos)
 
 	mavlink_message_t msg;
 	mavlink_msg_command_long_pack_chan(0, 1, MAVLINK_COMM_0, &msg, target_sys, target_comp,
-                                           cmd, confirm, params[0], params[1], params[2], params[3],
-                                           params[4], params[5], params[6]);
+	                                   cmd, confirm, params[0], params[1], params[2], params[3],
+	                                   params[4], params[5], params[6]);
 	send_mavlink_msg_to_serial(&msg);
 }
 
@@ -124,8 +124,8 @@ void send_mavlink_mission_resume_cmd()
 
 	mavlink_message_t msg;
 	mavlink_msg_command_long_pack_chan(0, 1, MAVLINK_COMM_0, &msg, target_sys, target_comp,
-                                           cmd, confirm, params[0], params[1], params[2], params[3],
-                                           params[4], params[5], params[6]);
+	                                   cmd, confirm, params[0], params[1], params[2], params[3],
+	                                   params[4], params[5], params[6]);
 	send_mavlink_msg_to_serial(&msg);
 }
 
@@ -141,12 +141,12 @@ void send_mavlink_position_target(float *pos_enu, float *vel_enu, float *acc_enu
 
 	mavlink_message_t msg;
 	mavlink_msg_set_position_target_local_ned_pack_chan(
-		0, 1, MAVLINK_COMM_0, &msg,
-		sys_time, target_system, target_component,
-		MAV_FRAME_LOCAL_ENU, type_mask, 
-		pos_enu[0], pos_enu[1], pos_enu[2],
-		vel_enu[0], vel_enu[1], vel_enu[2],
-		acc_enu[0], acc_enu[1], acc_enu[2],
-		yaw, yaw_rate);
+	        0, 1, MAVLINK_COMM_0, &msg,
+	        sys_time, target_system, target_component,
+	        MAV_FRAME_LOCAL_ENU, type_mask,
+	        pos_enu[0], pos_enu[1], pos_enu[2],
+	        vel_enu[0], vel_enu[1], vel_enu[2],
+	        acc_enu[0], acc_enu[1], acc_enu[2],
+	        yaw, yaw_rate);
 	send_mavlink_msg_to_serial(&msg);
 }

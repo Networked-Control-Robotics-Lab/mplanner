@@ -16,8 +16,8 @@ void mavlink_thread_entry(void)
 		if(serial_getc(&c) != -1) {
 			//std::cout << c;
 			received_mavlink_msg =
-				mavlink_parse_char(MAVLINK_COMM_1, (uint8_t)c,
-                	                           &mavlink_recpt_msg, &mavlink_recpt_status);
+			        mavlink_parse_char(MAVLINK_COMM_1, (uint8_t)c,
+			                           &mavlink_recpt_msg, &mavlink_recpt_status);
 		}
 
 		/* parse incoming mavlink message and call the message handler */

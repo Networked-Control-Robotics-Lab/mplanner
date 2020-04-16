@@ -82,10 +82,10 @@ void command_uav_follow_trajectory_waypoints(void)
 		}
 
 		send_mavlink_position_target(trajectory_wp[wp_num].pos,
-			trajectory_wp[wp_num].vel,
-			trajectory_wp[wp_num].acc,
-			trajectory_wp[wp_num].yaw,
-			trajectory_wp[wp_num].yaw_rate);
+		                             trajectory_wp[wp_num].vel,
+		                             trajectory_wp[wp_num].acc,
+		                             trajectory_wp[wp_num].yaw,
+		                             trajectory_wp[wp_num].yaw_rate);
 
 		wp_num++;
 

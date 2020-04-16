@@ -16,8 +16,8 @@ void generate_circular_trajectory(trajectory_wp_t *wp_list, int waypoint_count, 
 		wp_list[i].pos[2] = height;
 
 		ros_trajectory_waypoint_push_back(wp_list[i].pos[0],
-						  wp_list[i].pos[1],
-						  wp_list[i].pos[2]);
+		                                  wp_list[i].pos[1],
+		                                  wp_list[i].pos[2]);
 	}
 
 	/* connect the last point with the first point */
@@ -25,6 +25,6 @@ void generate_circular_trajectory(trajectory_wp_t *wp_list, int waypoint_count, 
 	wp_list[waypoint_count-1].pos[1] = wp_list[0].pos[1];
 	wp_list[waypoint_count-1].pos[2] = wp_list[0].pos[2];
 	ros_trajectory_waypoint_push_back(wp_list[waypoint_count-1].pos[0],
-					  wp_list[waypoint_count-1].pos[1],
-					  wp_list[waypoint_count-1].pos[2]);
+	                                  wp_list[waypoint_count-1].pos[1],
+	                                  wp_list[waypoint_count-1].pos[2]);
 }
