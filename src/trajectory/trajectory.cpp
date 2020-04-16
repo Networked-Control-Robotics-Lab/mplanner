@@ -1,6 +1,7 @@
 #include "math.h"
 #include "trajectory.hpp"
 #include "ros_thread.hpp"
+#include "traj_optimizer.hpp"
 
 void generate_circular_trajectory(trajectory_wp_t *wp_list, int waypoint_count, float height)
 {
@@ -27,4 +28,29 @@ void generate_circular_trajectory(trajectory_wp_t *wp_list, int waypoint_count, 
 	ros_trajectory_waypoint_push_back(wp_list[waypoint_count-1].pos[0],
 	                                  wp_list[waypoint_count-1].pos[1],
 	                                  wp_list[waypoint_count-1].pos[2]);
+
+	/* solve quadratic programming problem to get velocity and acceleration */
+	path_def path;
+	trajectory_profile p_last, p_now;
+
+	/* prepare sample points */
+	p_last.pos << wp_list[0].pos[0],
+		      wp_list[0].pos[1],
+                      wp_list[0].pos[2];
+	p_last.vel << 0.0f, 0.0f, 0.0f;
+	p_last.acc << 0.0f, 0.0f, 0.0f;
+	for(int i = 1; i < waypoint_count; i++) {
+		p_now.pos << wp_list[waypoint_count-1].pos[0],
+                             wp_list[waypoint_count-1].pos[1],
+                             wp_list[waypoint_count-1].pos[2];
+		p_now.vel << 0.0f, 0.0f, 0.0f;
+		p_now.acc << 0.0f, 0.0f, 0.0f;
+
+		path.push_back(segments(p_last, p_now, 2));
+		p_last = p_now;
+	}
+
+	/* activate quadratic programming solver */
+	qptrajectory plan;
+	plan.get_profile(path ,path.size(), 0.02);
 }
