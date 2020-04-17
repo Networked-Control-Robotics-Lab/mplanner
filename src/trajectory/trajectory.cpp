@@ -51,6 +51,10 @@ void generate_circular_trajectory(trajectory_wp_t *wp_list, int waypoint_count, 
 	}
 
 	/* activate quadratic programming solver */
+	std::vector<double> poly_x, poly_y, poly_z;
+
+	system("/bin/stty cooked echo");
 	qptrajectory plan;
-	plan.get_profile(path ,path.size(), 0.02);
+	plan.get_profile(path ,path.size(), 0.02, poly_x, poly_y, poly_z);
+	system ("/bin/stty raw -echo");
 }

@@ -34,7 +34,7 @@ struct waypoint {
 
 class trajectory_profile
 {
-public:
+	public:
 	trajectory_profile() {}
 	trajectory_profile(Eigen::Vector3d pos_,
 	                   Eigen::Vector3d vel_,
@@ -58,7 +58,7 @@ public:
 
 class segments
 {
-public:
+	public:
 	segments() {}
 	segments(trajectory_profile b_c_,trajectory_profile t_c_,double t )
 	{
@@ -69,12 +69,11 @@ public:
 	trajectory_profile b_c;
 	trajectory_profile t_c;
 	double time_interval;
-
 };
 
 class profile
 {
-public:
+	public:
 	profile() {}
 	double position;
 	double velocity;
@@ -92,19 +91,21 @@ public:
 		V[2] = a;
 		V[3] = j;
 	}
-
 };
 
 typedef std::vector<segments> path_def;
 
 class qptrajectory
 {
-public:
+	public:
 	qptrajectory();
 	~qptrajectory();
 	void set_waypoints(waypoint data);
 	double get_position(double time);
-	std::vector<trajectory_profile> get_profile(std::vector<segments> seg, int number, double dt );
+	void get_profile(std::vector<segments> seg, int number, double dt,
+                               std::vector<double> &polyx,
+                               std::vector<double> &polyy,
+                               std::vector<double> &polya);
 	std::vector<double> qpsolve8(Eigen::VectorXd waypoint, int number, Eigen::VectorXd duration);
 	std::vector<double> qpsolve4(Eigen::VectorXd waypoint, int number, Eigen::VectorXd duration);
 	std::vector<double> compress_time(Eigen::VectorXd waypointx,Eigen::VectorXd waypointy, int number, Eigen::VectorXd duration, std::vector<double> polyx, std::vector<double> polyy);
@@ -119,8 +120,6 @@ public:
 	Eigen::MatrixXd t8_array( double t);
 	Eigen::MatrixXd endpoint_array4( double t);
 	Eigen::MatrixXd endpoint_array8( double t);
-
-private:
 };
 
 #endif

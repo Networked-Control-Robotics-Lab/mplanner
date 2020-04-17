@@ -20,14 +20,16 @@ std::vector<double> qptrajectory::qpsolve8(Eigen::VectorXd waypoint, int number,
 {
 	std::vector<double> polynomial;
 	polynomial.clear();
-	//double t = 0;
+
 	//Hessian Matrix
 	Eigen::MatrixXd D(number*8,number*8);
 	Eigen::MatrixXd d(4,4);
+
 	//polynomial constraint matrix including all segment
 	Eigen::MatrixXd A((number+1)*4+(number-1),number*8);
 	Eigen::MatrixXd Ai(4,8);
 	Eigen::MatrixXd Af(4,8);
+
 	//waypoint vector
 	Eigen::MatrixXd B((number+1)*4+(number-1),1);
 	Eigen::MatrixXd G_(number*8,number*8);
@@ -51,23 +53,21 @@ std::vector<double> qptrajectory::qpsolve8(Eigen::VectorXd waypoint, int number,
 	PyObject *solvers = PyImport_ImportModule("cvxopt.solvers");
 
 	if (!solvers) {
-		// fprintf(stderr, "error importing cvxopt.solvers");
+		//fprintf(stderr, "error importing cvxopt.solvers");
 	}
 	PyObject *lp = PyObject_GetAttrString(solvers, "qp");
 
 	if (!lp) {
 		fprintf(stderr, "error referencing cvxopt.solvers.lp");
 		Py_DECREF(solvers);
-
 	}
 
-	PyObject *Q = (PyObject*)Matrix_New(number*8,number*8,DOUBLE);
-	PyObject *p = (PyObject*)Matrix_New(number*8,1,DOUBLE);
-	PyObject *G = (PyObject*)Matrix_New(number*8,number*8,DOUBLE);
-	PyObject *h = (PyObject*)Matrix_New(number*8,1,DOUBLE);
-
-	PyObject *A_ = (PyObject*)Matrix_New((number+1)*4+(number-1),number*8,DOUBLE); //ok
-	PyObject *B_ = (PyObject*)Matrix_New((number+1)*4+(number-1),1,DOUBLE);  //ok
+	PyObject *Q = (PyObject*)Matrix_New(number * 8, number * 8, DOUBLE);
+	PyObject *p = (PyObject*)Matrix_New(number * 8, 1, DOUBLE);
+	PyObject *G = (PyObject*)Matrix_New(number * 8, number * 8, DOUBLE);
+	PyObject *h = (PyObject*)Matrix_New(number * 8, 1, DOUBLE);
+	PyObject *A_ = (PyObject*)Matrix_New((number+1)*4 + (number-1), number*8, DOUBLE);
+	PyObject *B_ = (PyObject*)Matrix_New((number+1)*4 + (number-1), 1, DOUBLE);
 
 	PyObject *pArgs = PyTuple_New(6);
 	if(!G || !Q || !pArgs) {
@@ -85,22 +85,23 @@ std::vector<double> qptrajectory::qpsolve8(Eigen::VectorXd waypoint, int number,
 	}
 
 	Ai << 1, 0, 0, 0, 0, 0, 0, 0,
-	0, 1, 0, 0, 0, 0, 0, 0,
-	0, 0, 2, 0, 0, 0, 0, 0,
-	0, 0, 0, 6, 0, 0, 0, 0;
+	      0, 1, 0, 0, 0, 0, 0, 0,
+	      0, 0, 2, 0, 0, 0, 0, 0,
+	      0, 0, 0, 6, 0, 0, 0, 0;
 
 	Af << 0,  0,  0,  0, 0, 0, 0, 0,
-	0, -1,  0,  0, 0, 0, 0, 0,
-	0,  0, -2,  0, 0, 0, 0, 0,
-	0,  0,  0, -6, 0, 0, 0, 0;
+	      0, -1,  0,  0, 0, 0, 0, 0,
+	      0,  0, -2,  0, 0, 0, 0, 0,
+	      0,  0,  0, -6, 0, 0, 0, 0;
 
 	A.block<4,8>(0,0) = Ai;
 	for(int i=0 ; i < number ; i++) {
 		A.block<4,8>(4+i*4,i*8) = endpoint_array8(duration(i));
 	}
-	for(int i=0 ; i < (number-1) ; i++) {
-		A.block<4,8>(4*(i+1),8*(i+1)) = Af;
-		A((number+1)*4+i,8*(i+1)) = 1;
+
+	for(int i=0 ; i < (number - 1) ; i++) {
+		A.block<4,8>(4*(i + 1), 8 * (i + 1)) = Af;
+		A((number+1)*4 + i, 8*(i + 1)) = 1;
 	}
 
 	B = waypoint;
@@ -177,13 +178,6 @@ std::vector<double> qptrajectory::qpsolve8(Eigen::VectorXd waypoint, int number,
 	Py_DECREF(sol);
 	Py_Finalize();
 
-#if 0
-	std::cout<< std::endl << polynomial.size() <<std::endl;
-
-	for(int i=0; i<polynomial.size(); i++) {
-		std::cout<< std::endl << polynomial[i] <<std::endl;
-	}
-#endif
 	return polynomial;
 }
 
@@ -252,13 +246,12 @@ std::vector<double> qptrajectory::qpsolve4(Eigen::VectorXd waypoint, int number,
 	}
 
 	Ai << 1, 0, 0, 0,
-	0, 1, 0, 0;
+	      0, 1, 0, 0;
 
 	Af << 0,  0, 0, 0,
-	0, -1, 0, 0;
+	      0, -1, 0, 0;
 
 	A.block<2,4>(0,0) = Ai;
-	//std::cout << endpoint_array4(duration(0)) << std::endl;
 
 	for(int i=0 ; i < number ; i++) {
 		A.block<2,4>(2+i*2,i*4) = endpoint_array4(duration(i));
@@ -278,14 +271,10 @@ std::vector<double> qptrajectory::qpsolve4(Eigen::VectorXd waypoint, int number,
 	for(int i=0 ; i < (number-1) ; i++) {
 		B((number+1)*2+i,0) = waypoint((number+1)*4+i);
 	}
-	//std::cout<< std::endl << D <<std::endl;
-	//std::cout<< std::endl << A <<std::endl;
-	//std::cout<< std::endl << B <<std::endl;
 
 	for(int i=0 ; i<(number*4); i++) {
 		for(int j=0; j<(i+1); j++) {
 			MAT_BUFD(Q)[i*(number*4)+j] = D(j,i)   ;
-			//solver.set_d(i, j, D(i,j));
 		}
 	}
 
@@ -296,7 +285,6 @@ std::vector<double> qptrajectory::qpsolve4(Eigen::VectorXd waypoint, int number,
 	}
 
 	for(int i=0; i<((number+1)*2+(number-1)); i++) {
-		//solver.set_b(i,B(i,0));
 		MAT_BUFD(B_)[i] = B(i,0)   ;
 	}
 
@@ -306,7 +294,6 @@ std::vector<double> qptrajectory::qpsolve4(Eigen::VectorXd waypoint, int number,
 	PyTuple_SetItem(pArgs, 3, h);
 	PyTuple_SetItem(pArgs, 4, A_);
 	PyTuple_SetItem(pArgs, 5, B_);
-	//std::cout << "here" <<std::endl;
 
 	PyObject *sol = PyObject_CallObject(lp, pArgs);
 
@@ -330,17 +317,10 @@ std::vector<double> qptrajectory::qpsolve4(Eigen::VectorXd waypoint, int number,
 	Py_DECREF(sol);
 	Py_Finalize();
 
-#if 0
-	std::cout<< std::endl << polynomial.size() <<std::endl;
-
-	for(int i=0; i<polynomial.size(); i++) {
-		std::cout<< std::endl << polynomial[i] <<std::endl;
-	}
-#endif
 	return polynomial;
 }
 
-Eigen::MatrixXd qptrajectory:: endpoint_array8( double t)
+Eigen::MatrixXd qptrajectory::endpoint_array8( double t)
 {
 	Eigen::MatrixXd A;
 	A.setZero(4,8);
@@ -351,7 +331,7 @@ Eigen::MatrixXd qptrajectory:: endpoint_array8( double t)
 	return A;
 }
 
-Eigen::MatrixXd qptrajectory:: endpoint_array4( double t)
+Eigen::MatrixXd qptrajectory::endpoint_array4( double t)
 {
 	Eigen::MatrixXd A;
 	A.setZero(2,4);
@@ -360,7 +340,7 @@ Eigen::MatrixXd qptrajectory:: endpoint_array4( double t)
 	return A;
 }
 
-Eigen::MatrixXd qptrajectory:: t8_array( double t)
+Eigen::MatrixXd qptrajectory::t8_array( double t)
 {
 	double b0 = 24,
 	       b1 = 120,
@@ -379,7 +359,7 @@ Eigen::MatrixXd qptrajectory:: t8_array( double t)
 	return d;
 }
 
-Eigen::MatrixXd qptrajectory:: t4_array( double t)
+Eigen::MatrixXd qptrajectory::t4_array( double t)
 {
 	double b0 = 2,
 	       b1 = 6;
@@ -393,7 +373,7 @@ Eigen::MatrixXd qptrajectory:: t4_array( double t)
 	return d;
 }
 
-std::vector<double> qptrajectory::compress_time(Eigen::VectorXd waypointx,Eigen::VectorXd waypointy,int number, Eigen::VectorXd duration,std::vector<double> polyx,std::vector<double> polyy)
+std::vector<double> qptrajectory::compress_time(Eigen::VectorXd waypointx,Eigen::VectorXd waypointy,int number, Eigen::VectorXd duration,std::vector<double> poly_x,std::vector<double> poly_y)
 {
 	double compress_weight = 1000000;
 	double total_t = 0 ;
@@ -413,8 +393,8 @@ std::vector<double> qptrajectory::compress_time(Eigen::VectorXd waypointx,Eigen:
 	Eigen::VectorXd new_polynomialy;
 	Eigen::MatrixXd D(number*8,number*8);
 	std::vector<double> new_poly;
-	std::vector<double> new_polyx;
-	std::vector<double> new_polyy;
+	std::vector<double> new_poly_x;
+	std::vector<double> new_poly_y;
 	gradient.setZero(number);
 	new_minimize_set.setZero(number);
 	polynomialx.setZero(number*8);
@@ -427,8 +407,8 @@ std::vector<double> qptrajectory::compress_time(Eigen::VectorXd waypointx,Eigen:
 
 	//std to eigen
 	for(int i=0 ; i < number*8 ; i++) {
-		polynomialx(i)=polyx[i];
-		polynomialy(i)=polyy[i];
+		polynomialx(i)=poly_x[i];
+		polynomialy(i)=poly_y[i];
 	}
 	//Hessian Matrix
 	for(int i=0 ; i < number ; i++) {
@@ -458,11 +438,11 @@ std::vector<double> qptrajectory::compress_time(Eigen::VectorXd waypointx,Eigen:
 			new_duration(i)=new_duration_set(j,i);
 			new_total_t+=new_duration(i);
 		}
-		new_polyx = qpsolve8(waypointx,number,new_duration);
-		new_polyy = qpsolve8(waypointy,number,new_duration);
+		new_poly_x = qpsolve8(waypointx,number,new_duration);
+		new_poly_y = qpsolve8(waypointy,number,new_duration);
 		for(int i=0 ; i < number*8 ; i++) {
-			new_polynomialx(i)=new_polyx[i];
-			new_polynomialy(i)=new_polyy[i];
+			new_polynomialx(i)=new_poly_x[i];
+			new_polynomialy(i)=new_poly_y[i];
 		}
 		new_jx = new_polynomialx.transpose()*D*new_polynomialx;
 		new_jy = new_polynomialy.transpose()*D*new_polynomialy;
@@ -482,15 +462,15 @@ std::vector<double> qptrajectory::compress_time(Eigen::VectorXd waypointx,Eigen:
 		new_duration(j) = duration(j) - alpha*gradient(j);
 	}
 	//obtain new polynomial for duration after compress
-	new_polyx = qpsolve8(waypointx,number,new_duration);
-	new_polyy = qpsolve8(waypointy,number,new_duration);
+	new_poly_x = qpsolve8(waypointx,number,new_duration);
+	new_poly_y = qpsolve8(waypointy,number,new_duration);
 
 	for(int i=0; i<number*8; i++) {
-		new_poly.push_back(new_polyx[i]);
+		new_poly.push_back(new_poly_x[i]);
 		//std::cout<< std::endl << new_poly[i] <<std::endl;
 	}
 	for(int i=0; i<number*8; i++) {
-		new_poly.push_back(new_polyy[i]);
+		new_poly.push_back(new_poly_y[i]);
 		//std::cout<< std::endl << new_poly[number*8+i] <<std::endl;
 	}
 	for(int i=0; i<number; i++) {
@@ -498,21 +478,24 @@ std::vector<double> qptrajectory::compress_time(Eigen::VectorXd waypointx,Eigen:
 	}
 	return new_poly;
 }
-std::vector<double> qptrajectory::adjust_time(Eigen::VectorXd waypointx,Eigen::VectorXd waypointy,int number, Eigen::VectorXd duration, int iteration, std::vector<double> polyx,std::vector<double> polyy)
+
+std::vector<double> qptrajectory::adjust_time(Eigen::VectorXd waypointx,
+                                              Eigen::VectorXd waypointy, int number,
+                                              Eigen::VectorXd duration, int iteration,
+                                              std::vector<double> poly_x,std::vector<double> poly_y)
 {
-	double total_t = 0 ;
-	double new_total_t = 0 ;
+	double total_t = 0;
+	double new_total_t = 0;
 	double minimize_function = 0;
 	double new_minimize_function = 0;
-	//double h = 0.005;
 	double h = 0.05;
-	//double alpha = 0.00000025;
 	double alpha = 0.00025;
 	double step = 0.6;
 	double c = 0.5;
 	double gain;
-	double jx=0,jy=0;
-	double new_jx=0,new_jy=0;
+	double jx = 0,jy = 0;
+	double new_jx = 0, new_jy = 0;
+
 	Eigen::VectorXd gradient;
 	Eigen::VectorXd last_gradient;
 	Eigen::VectorXd lastlast_gradient;
@@ -530,9 +513,11 @@ std::vector<double> qptrajectory::adjust_time(Eigen::VectorXd waypointx,Eigen::V
 	Eigen::VectorXd new_polynomialx;
 	Eigen::VectorXd new_polynomialy;
 	Eigen::MatrixXd D;
+
 	std::vector<double> new_poly;
-	std::vector<double> new_polyx;
-	std::vector<double> new_polyy;
+	std::vector<double> new_poly_x;
+	std::vector<double> new_poly_y;
+
 	direction.setZero(number);
 	direction_set.setZero(number,number);
 	last_duration.setZero(number);
@@ -551,19 +536,22 @@ std::vector<double> qptrajectory::adjust_time(Eigen::VectorXd waypointx,Eigen::V
 	D.setZero(number*8,number*8);
 	new_duration_set.setZero(number,number);
 
-	for(int k=0 ; k < iteration ; k++) {
+	for(int k=0; k < iteration; k++) {
 		//std to eigen
 		for(int i=0 ; i < number*8 ; i++) {
-			polynomialx(i)=polyx[i];
-			polynomialy(i)=polyy[i];
+			polynomialx(i) = poly_x[i];
+			polynomialy(i) = poly_y[i];
 		}
+
 		//Hessian Matrix
 		for(int i=0 ; i < number ; i++) {
 			D.block<4,4>(4+i*8,4+i*8) = t8_array(duration(i));
 			total_t+=duration(i);
 		}
+
 		jx = polynomialx.transpose()*D*polynomialx;
 		jy = polynomialy.transpose()*D*polynomialy;
+
 		//original cost function
 		minimize_function = jx + jy;
 		std::cout<< std::endl << minimize_function <<std::endl;
@@ -583,12 +571,9 @@ std::vector<double> qptrajectory::adjust_time(Eigen::VectorXd waypointx,Eigen::V
 				}
 			}
 		}
-		//std::cout<< std::endl << new_duration_set <<std::endl;
-		//std::cout<< std::endl << direction_set <<std::endl;
 
 		//backtracking line search
 		h = step*h;
-		//std::cout<< std::endl << h <<std::endl;
 		//obtain each polynomial for each duration
 		for(int j=0 ; j < number ; j++) {
 			for(int i=0 ; i < number ; i++) {
@@ -596,51 +581,27 @@ std::vector<double> qptrajectory::adjust_time(Eigen::VectorXd waypointx,Eigen::V
 				new_total_t += new_duration(i);
 				direction(i) = direction_set(j,i);
 			}
-			//std::cout<< std::endl << direction <<std::endl;
-			new_polyx = qpsolve8(waypointx,number,new_duration);
-			new_polyy = qpsolve8(waypointy,number,new_duration);
+			new_poly_x = qpsolve8(waypointx,number,new_duration);
+			new_poly_y = qpsolve8(waypointy,number,new_duration);
 			for(int i=0 ; i < number*8 ; i++) {
-				new_polynomialx(i)=new_polyx[i];
-				new_polynomialy(i)=new_polyy[i];
+				new_polynomialx(i)=new_poly_x[i];
+				new_polynomialy(i)=new_poly_y[i];
 			}
 			new_jx = new_polynomialx.transpose()*D*new_polynomialx;
 			new_jy = new_polynomialy.transpose()*D*new_polynomialy;
 			new_minimize_set(j) =  new_jx + new_jy;
-			//gradient = (F(T+h*gi)- F(T))/h
 			gradient(j) = (new_minimize_set(j) - minimize_function)/h;
-			//std::cout<< std::endl << new_polynomialx <<std::endl;
 
-			//duration_vector(j) = last_duration(j)-lastlast_duration(j);
-			//gradient_vector(j) = last_gradient(j)-lastlast_gradient(j);
 			new_duration.setZero(number);
 			new_polynomialx.setZero(number*8);
 			new_polynomialy.setZero(number*8);
 			new_total_t = 0;
 		}
 
-#if 0
-		std::cout<< std::endl << gradient <<std::endl;
-		//adjust gain
-		double vector = (duration_vector.transpose()*gradient_vector);
-		gain = vector/(gradient_vector.squaredNorm());
-		std::cout<< std::endl<< gain <<std::endl;
-
-		for(int j=0 ; j < number ; j++) {
-			lastlast_duration(j) = last_duration(j);
-			lastlast_gradient(j) = last_gradient(j);
-		}
-#endif
 		double temp = 0;
 		for(int j=0 ; j < number ; j++) {
 			int scale=1;
-			//if(k>1){
-			//new_duration(j) = (duration(j) - gain*gradient(j))*scale;
-			//}
-			//else{
 			new_duration(j) = (duration(j) - alpha*gradient(j))*scale;
-			//}
-			//last_duration(j) = new_duration(j);
-			//last_gradient(j) = gradient(j);
 			temp = (direction.transpose()*gradient);
 			new_minimize_function += new_minimize_set(j);
 		}
@@ -649,17 +610,17 @@ std::vector<double> qptrajectory::adjust_time(Eigen::VectorXd waypointx,Eigen::V
 		std::cout<< std::endl<< tempp <<std::endl;
 
 		//obtain new polynomial for duration after compress
-		new_polyx = qpsolve8(waypointx,number,new_duration);
-		new_polyy = qpsolve8(waypointy,number,new_duration);
+		new_poly_x = qpsolve8(waypointx,number,new_duration);
+		new_poly_y = qpsolve8(waypointy,number,new_duration);
 		duration.setZero(number);
 		polynomialx.setZero(number*8);
 		polynomialy.setZero(number*8);
-		polyx.clear();
-		polyy.clear();
+		poly_x.clear();
+		poly_y.clear();
 		new_minimize_function = 0;
 		duration = new_duration;
-		polyx = new_polyx;
-		polyy = new_polyy;
+		poly_x = new_poly_x;
+		poly_y = new_poly_y;
 		//check if converge
 		if(tempp<=1) {
 			std::cout<< std::endl<< k << ":converge!" <<std::endl;
@@ -668,12 +629,10 @@ std::vector<double> qptrajectory::adjust_time(Eigen::VectorXd waypointx,Eigen::V
 	}
 
 	for(int i=0; i<number*8; i++) {
-		new_poly.push_back(new_polyx[i]);
-		//std::cout<< std::endl << new_poly[i] <<std::endl;
+		new_poly.push_back(new_poly_x[i]);
 	}
 	for(int i=0; i<number*8; i++) {
-		new_poly.push_back(new_polyy[i]);
-		//std::cout<< std::endl << new_poly[number*8+i] <<std::endl;
+		new_poly.push_back(new_poly_y[i]);
 	}
 	for(int i=0; i<number; i++) {
 		new_poly.push_back(new_duration[i]);
@@ -681,16 +640,21 @@ std::vector<double> qptrajectory::adjust_time(Eigen::VectorXd waypointx,Eigen::V
 	return new_poly;
 }
 
-//input waypoint, segment size, duration
-std::vector<trajectory_profile> qptrajectory::get_profile(std::vector<segments> seg, int number, double dt )
+/* 
+ * input: waypoint, segment size, duration
+ * output: polynominal coefficient of x, y position and yaw
+ */
+void qptrajectory::get_profile(std::vector<segments> seg, int number, double dt,
+                               std::vector<double> &poly_x,
+                               std::vector<double> &poly_y,
+                               std::vector<double> &poly_yaw)
 {
-	double total_t = 0.0 ;
+	double total_t = 0.0;
 	int iteration = 10;
-	std::vector<double> poly, polyx, polyy, polya;
 	std::vector<trajectory_profile> tprofile;
 	tprofile.clear();
-	Eigen::Vector3d d(0,0,0);
-	trajectory_profile data(d,d,d,d,d,0.005);
+	Eigen::Vector3d d(0, 0, 0);
+	trajectory_profile data(d, d, d, d, d, 0.005);
 	Eigen::VectorXd waypointx;
 	Eigen::VectorXd waypointy;
 	Eigen::VectorXd waypointa;
@@ -702,132 +666,71 @@ std::vector<trajectory_profile> qptrajectory::get_profile(std::vector<segments> 
 	waypointa.setZero((number+1)*4+(number-1));
 	duration.setZero(number);
 	new_duration.setZero(number);
-	//std::cout << number <<std::endl;
 
 	for(int i=0 ; i < seg.size() ; i++) {
 		//all end point
-		waypointx((i+1)*4) =  seg[i].t_c.pos[0] ;
-		waypointx((i+1)*4+1) =  seg[i].t_c.vel[0] ;
-		waypointx((i+1)*4+2) =  seg[i].t_c.acc[0] ;
-		waypointx((i+1)*4+3) =  0 ;
-		waypointy((i+1)*4) =  seg[i].t_c.pos[1] ;
-		waypointy((i+1)*4+1) =  seg[i].t_c.vel[1] ;
-		waypointy((i+1)*4+2) =  seg[i].t_c.acc[1] ;
-		waypointy((i+1)*4+3) =  0 ;
-		waypointa((i+1)*4) =  seg[i].t_c.yaw[0] ;
+		waypointx((i+1)*4) = seg[i].t_c.pos[0];
+		waypointx((i+1)*4+1) = seg[i].t_c.vel[0];
+		waypointx((i+1)*4+2) = seg[i].t_c.acc[0];
+		waypointx((i+1)*4+3) = 0;
+		waypointy((i+1)*4) = seg[i].t_c.pos[1];
+		waypointy((i+1)*4+1) = seg[i].t_c.vel[1];
+		waypointy((i+1)*4+2) = seg[i].t_c.acc[1];
+		waypointy((i+1)*4+3) = 0;
+		waypointa((i+1)*4) = seg[i].t_c.yaw[0];
 	}
 
 	//first starting point
-	waypointx(0) =  seg[0].b_c.pos[0] ;
-	waypointx(1) =  seg[0].b_c.vel[0] ;
-	waypointx(2) =  seg[0].b_c.acc[0] ;
-	waypointx(3) =  0 ;
-	waypointy(0) =  seg[0].b_c.pos[1] ;
-	waypointy(1) =  seg[0].b_c.vel[1] ;
-	waypointy(2) =  seg[0].b_c.acc[1] ;
-	waypointy(3) =  0 ;
-	waypointa(0) =  seg[0].b_c.yaw[0] ;
+	waypointx(0) = seg[0].b_c.pos[0] ;
+	waypointx(1) = seg[0].b_c.vel[0] ;
+	waypointx(2) = seg[0].b_c.acc[0] ;
+	waypointx(3) = 0;
+	waypointy(0) = seg[0].b_c.pos[1] ;
+	waypointy(1) = seg[0].b_c.vel[1] ;
+	waypointy(2) = seg[0].b_c.acc[1] ;
+	waypointy(3) = 0;
+	waypointa(0) = seg[0].b_c.yaw[0] ;
+
 	//other starting point
 	for(int i=0 ; i < (number-1) ; i++) {
 		waypointx((number+1)*4+i) =  seg[i+1].b_c.pos[0] ;
 		waypointy((number+1)*4+i) =  seg[i+1].b_c.pos[1] ;
 		waypointa((number+1)*4+i) =  seg[i+1].b_c.yaw[0] ;
 	}
-	//std::cout << waypointa <<std::endl;
 
 	for(int i=0 ; i < seg.size() ; i++) {
 		duration(i)=seg[i].time_interval;
 		total_t+=seg[i].time_interval;
 	}
-	polyx = qpsolve8(waypointx, number, duration);
-	polyy = qpsolve8(waypointy, number, duration);
-	//yaw fourth order
-	polya = qpsolve4(waypointa, number, duration);
 
-	//polyx, polyy is vector of all segment's coefficient
-
-	//poly = compress_time(waypointx,waypointy,number,duration,polyx,polyy);
-	//poly = adjust_time(waypointx,waypointy,number,duration,iteration,polyx,polyy);
-
-	std::vector<std::vector<double> > polyx_2,polyy_2,polya_2;
-	polyx_2.resize(number);
-	polyy_2.resize(number);
-	polya_2.resize(number);
-	//polyx_2, polyy_2 is vector of each segment
-	//normal eighth order
-	for(unsigned int i=0; i<number ; i++) {
-		for(unsigned int j=0; j<8; j++) {
-			polyx_2[i].push_back( polyx[i*8+j]);
-			polyy_2[i].push_back( polyy[i*8+j]);
-		}
-	}
-	//normal fourth order
-	for(unsigned int i=0; i<number ; i++) {
-		for(unsigned int j=0; j<4; j++) {
-			//polyx_2[i].push_back( polyx[i*4+j]);
-			//polyy_2[i].push_back( polyy[i*4+j]);
-			polya_2[i].push_back( polya[i*4+j]);
-		}
-	}
-
-#if 0
-	//compress and adjust time
-	for(unsigned int i=0; i<number ; i++) {
-		for(unsigned int j=0; j<8; j++) {
-			polyx_2[i].push_back(poly[i*8+j]);
-		}
-	}
-
-	for(unsigned int i=0; i<number ; i++) {
-		for(unsigned int j=0; j<8; j++) {
-			polyy_2[i].push_back(poly[number*8+i*8+j]);
-		}
-	}
-	for(unsigned int i=0; i<number ; i++) {
-		duration(i) = poly[number*8*2+i];
-	}
-	std::cout << duration <<std::endl;
-#endif
-	double t=0.0 ;
-	//compute pos, vel, acc by polynomial
-	for(int i=0; i<number; i++) {
-		for(int j=0; j<(duration(i)/dt); j++) {
-			t =(double) dt*j;
-			data.pos << polynomial(polyx_2[i], t),polynomial(polyy_2[i], t), 0;
-			data.vel << polynomial_d1(polyx_2[i],t),polynomial_d1(polyy_2[i], t),0;
-			data.acc << polynomial_d2(polyx_2[i],t), polynomial_d2(polyy_2[i],t), 0;
-			data.jerk << polynomial_d3(polyx_2[i],t), polynomial_d3(polyy_2[i],t), 0;
-			data.yaw << polynomial(polya_2[i], t),polynomial_d1(polya_2[i], t), polynomial_d2(polya_2[i], t);
-			tprofile.push_back(data);
-		}
-	}
-
-	return tprofile;
+	poly_x = qpsolve8(waypointx, number, duration);
+	poly_y = qpsolve8(waypointy, number, duration);
+	poly_yaw = qpsolve4(waypointa, number, duration);
 }
 
 double qptrajectory::polynomial(std::vector<double> data,double t)
 {
-	double sum =0.0, var =1;
-	for(int i =0 ; i<data.size(); i++) {
-		sum+= data[i]*var;
-		var*=t;
+	double sum = 0.0, var = 1;
+	for(int i =0; i < data.size(); i++) {
+		sum += data[i]*var;
+		var *= t;
 	}
 	return sum;
 }
 double cpow(double t,int times)
 {
-	double var =1.0;
-	for(int i=0; i<times ; i++) {
-		var*=t;
+	double var = 1.0;
+	for(int i = 0; i<times ; i++) {
+		var *= t;
 	}
 	return var;
 }
 
 double qptrajectory::polynomial_d1(std::vector<double> data,double t)
 {
-	double sum=0.0;
-	for(int i=1; i<data.size(); i++) {
-		sum+=  (double) data[i] * i * cpow( t, i-1);
+	double sum = 0.0;
+	for(int i=1; i < data.size(); i++) {
+		sum += (double)data[i] * i * cpow(t, i-1);
 	}
 	return sum;
 }
@@ -836,7 +739,7 @@ double qptrajectory::polynomial_d2(std::vector<double> data,double t)
 {
 	double sum =0.0, var =1.0;
 	for(int i=2 ; i<data.size(); i++) {
-		sum += data[i] * i *(i-1)* cpow( t, i-2);
+		sum += data[i] * i *(i-1)* cpow(t, i-2);
 	}
 	return sum;
 }
@@ -845,14 +748,8 @@ double qptrajectory::polynomial_d3(std::vector<double> data,double t)
 {
 	double sum =0.0, var =1.0;
 
-	//sum = 6* data[3]
-	//      + 24 * data[4] *t
-	//      + 60 * data[5] *t*t
-	//      + 120 *data[6] *t*t*t
-	//      + 210* data[7] *t*t*t*t;
-
 	for(int i = 3 ; i<data.size(); i++) {
-		sum += data[i] * i *(i-1)* (i-2) * cpow( t, i-3);
+		sum += data[i] * i *(i-1)* (i-2) * cpow(t, i-3);
 	}
 
 	return sum;
