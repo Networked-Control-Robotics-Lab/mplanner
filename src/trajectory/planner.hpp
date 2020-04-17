@@ -98,8 +98,6 @@ typedef std::vector<segments> path_def;
 class qptrajectory
 {
 	public:
-	qptrajectory();
-	~qptrajectory();
 	void set_waypoints(waypoint data);
 	double get_position(double time);
 	void get_profile(std::vector<segments> seg, int number, double dt,

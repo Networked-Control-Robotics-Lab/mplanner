@@ -9,13 +9,6 @@
 
 using namespace Eigen;
 
-qptrajectory::qptrajectory()
-{
-}
-qptrajectory::~qptrajectory()
-{
-}
-
 std::vector<double> qptrajectory::qpsolve8(Eigen::VectorXd waypoint, int number, Eigen::VectorXd duration)
 {
 	std::vector<double> polynomial;
