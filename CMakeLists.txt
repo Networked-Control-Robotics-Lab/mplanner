@@ -20,6 +20,7 @@ catkin_package(CATKIN_DEPENDS message_runtime)
 set(INC
     ./ 
     ./src/lib/mavlink_v2/common
+    ./src/lib/matplotlib-cpp/
     ./src
     ./src/threads
     ./src/mavlink
