@@ -9,6 +9,6 @@ typedef struct {
 	float yaw_rate;
 } trajectory_wp_t;
 
-void generate_circular_trajectory(trajectory_wp_t *wp_list, int waypoint_count, float height);
+void plan_optimal_trajectory(trajectory_wp_t *wp_list, int waypoint_count);
 
 #endif

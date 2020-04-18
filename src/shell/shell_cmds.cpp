@@ -7,12 +7,6 @@
 #include "quadshell.hpp"
 #include "trajectory.hpp"
 
-#define WAYPOINT_UPDATE_RATE 1 //[Hz]
-#define TRAJECTORY_TRAVEL_TIME 30 //[second]
-#define TRAJECTORY_WP_NUM (WAYPOINT_UPDATE_RATE * TRAJECTORY_TRAVEL_TIME)
-
-trajectory_wp_t trajectory_wp[TRAJECTORY_WP_NUM];
-
 bool trajectory_follow_halt = false;
 
 void shell_cmd_help(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
@@ -70,39 +64,6 @@ void shell_cmd_fly(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int para
 {
 }
 
-void command_uav_follow_trajectory_waypoints(void)
-{
-	useconds_t sleep_time = 1000000 * (1.0f / (float)WAYPOINT_UPDATE_RATE);
-
-	int wp_num = 0;
-	while(trajectory_follow_halt == false) {
-		if(wp_num == TRAJECTORY_WP_NUM) {
-			printf("press [q] to leave.\n\r");
-			return;
-		}
-
-		send_mavlink_position_target(trajectory_wp[wp_num].pos,
-		                             trajectory_wp[wp_num].vel,
-		                             trajectory_wp[wp_num].acc,
-		                             trajectory_wp[wp_num].yaw,
-		                             trajectory_wp[wp_num].yaw_rate);
-
-		wp_num++;
-
-		printf("waypoint #%d is sent.\n\r", wp_num);
-		usleep(sleep_time);
-	}
-
-	send_mavlink_trajectory_following_cmd(false);
-	sleep(0.5);
-	send_mavlink_trajectory_following_cmd(false);
-	sleep(0.5);
-	send_mavlink_trajectory_following_cmd(false);
-	sleep(0.5);
-
-	trajectory_follow_halt = false;
-}
-
 void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
 	char user_agree[CMD_LEN_MAX];
@@ -111,8 +72,6 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 	shell_cli(&shell);
 
 	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
-		shell_puts("press [q] to leave.\n\r");
-
 		send_mavlink_trajectory_following_cmd(true);
 		sleep(0.5);
 		send_mavlink_trajectory_following_cmd(true);
@@ -120,13 +79,29 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		send_mavlink_trajectory_following_cmd(true);
 		sleep(0.5);
 
-		generate_circular_trajectory(trajectory_wp, TRAJECTORY_WP_NUM, 0.6f);
-		std::thread trajectory_commander_thread(command_uav_follow_trajectory_waypoints);
+		//TODO: improve the hardcode
+	        trajectory_wp_t waypoints[5];
+		waypoints[0].pos[0] = 1.0f;
+		waypoints[0].pos[1] = 0.0f;
+		waypoints[0].pos[2] = 0.6f;
 
-		trajectory_commander_thread.detach();
+		waypoints[1].pos[0] = 0.0f;
+		waypoints[1].pos[1] = 1.0f;
+		waypoints[1].pos[2] = 0.6f;
 
-		while(getchar() != 'q');
-		trajectory_follow_halt = true;
+		waypoints[2].pos[0] = -1.0f;
+		waypoints[2].pos[1] = 0.0f;
+		waypoints[2].pos[2] = 0.6f;
+
+		waypoints[3].pos[0] = 0.0f;
+		waypoints[3].pos[1] = -1.0f;
+		waypoints[3].pos[2] = 0.6f;
+
+		waypoints[4].pos[0] = waypoints[0].pos[0];
+		waypoints[4].pos[1] = waypoints[0].pos[1];
+		waypoints[4].pos[2] = waypoints[0].pos[2];
+
+		plan_optimal_trajectory(waypoints, 5);
 	} else {
 		printf("abort.\n\r");
 	}
