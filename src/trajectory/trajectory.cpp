@@ -49,7 +49,7 @@ void generate_circular_trajectory(trajectory_wp_t *wp_list, int waypoint_count, 
 
 	/* solve quadratic programming problem to get velocity and acceleration */
 	path_def path;
-	trajectory_profile p_last, p_now;
+	trajectory_profile p_last;
 
 	/* prepare sample points */
 	p_last.pos << wp_list[0].pos[0],
@@ -58,9 +58,10 @@ void generate_circular_trajectory(trajectory_wp_t *wp_list, int waypoint_count, 
 	p_last.vel << 0.0f, 0.0f, 0.0f;
 	p_last.acc << 0.0f, 0.0f, 0.0f;
 	for(int i = 1; i < waypoint_count; i++) {
-		p_now.pos << wp_list[waypoint_count].pos[0],
-                             wp_list[waypoint_count].pos[1],
-                             wp_list[waypoint_count].pos[2];
+		trajectory_profile p_now;
+		p_now.pos << wp_list[i].pos[0],
+                             wp_list[i].pos[1],
+                             wp_list[i].pos[2];
 		p_now.vel << 0.0f, 0.0f, 0.0f;
 		p_now.acc << 0.0f, 0.0f, 0.0f;
 
