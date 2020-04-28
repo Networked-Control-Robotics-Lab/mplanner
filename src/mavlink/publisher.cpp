@@ -1,4 +1,5 @@
 #include "mavlink.h"
+#include "ncrl.h"
 #include "serial.hpp"
 
 static void send_mavlink_msg_to_serial(mavlink_message_t *msg)
@@ -148,5 +149,54 @@ void send_mavlink_position_target(float *pos_enu, float *vel_enu, float *acc_enu
 	        vel_enu[0], vel_enu[1], vel_enu[2],
 	        acc_enu[0], acc_enu[1], acc_enu[2],
 	        yaw, yaw_rate);
+	send_mavlink_msg_to_serial(&msg);
+}
+
+void send_mavlink_polynomial_trajectory_start(bool altitude_fixed)
+{
+	uint8_t target_system = 1;
+	uint8_t target_component = 1;
+
+	mavlink_message_t msg;
+	mavlink_msg_polynomial_trajectory_cmd_pack_chan(0, 1, MAVLINK_COMM_0, &msg,
+                                                        target_system, target_component,
+                                                        TRAJECTORY_FOLLOWING_START, altitude_fixed);
+	send_mavlink_msg_to_serial(&msg);
+}
+
+void send_mavlink_polynomial_trajectory_stop()
+{
+	uint8_t target_system = 1;
+	uint8_t target_component = 1;
+	uint8_t option = 0;
+
+	mavlink_message_t msg;
+	mavlink_msg_polynomial_trajectory_cmd_pack_chan(0, 1, MAVLINK_COMM_0, &msg,
+                                                        target_system, target_component,
+                                                        TRAJECTORY_FOLLOWING_STOP, option);
+	send_mavlink_msg_to_serial(&msg);
+}
+
+void send_mavlink_polynomial_trajectory_write(uint8_t list_size)
+{
+        uint8_t target_system = 1;
+        uint8_t target_component = 1;
+
+	mavlink_message_t msg;
+	mavlink_msg_polynomial_trajectory_write_pack_chan(0, 1, MAVLINK_COMM_0, &msg, target_system,
+                                                          target_component, list_size);
+	send_mavlink_msg_to_serial(&msg);
+}
+
+void send_mavlink_polynomial_trajectory_item(float *x_coeff, float *y_coeff, float *z_coeff,
+                                             float *yaw_coeff)
+{
+	uint8_t target_system = 1; 
+	uint8_t target_component = 1;
+
+	mavlink_message_t msg;
+	mavlink_msg_polynomial_trajectory_item_pack_chan(0, 1, MAVLINK_COMM_0, &msg,
+                                                    target_system, target_component,
+                                                    x_coeff, y_coeff, z_coeff, yaw_coeff);
 	send_mavlink_msg_to_serial(&msg);
 }
