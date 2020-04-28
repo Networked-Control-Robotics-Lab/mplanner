@@ -1,3 +1,4 @@
+#include <vector>
 #include <thread>
 #include <unistd.h>
 #include <string.h>
@@ -6,6 +7,8 @@
 #include "../mavlink/publisher.hpp"
 #include "quadshell.hpp"
 #include "trajectory.hpp"
+
+using namespace std;
 
 bool trajectory_follow_halt = false;
 
@@ -112,7 +115,29 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		traj[3].end.pos[2] = 0.6f;
 		traj[3].flight_time = 2.0f;
 
-		plan_optimal_trajectory(traj, 4);
+		int traj_list_size = 4; //TODO: fix hardcode
+
+		vector<double> x_coeff_full, y_coeff_full, z_coeff_full;
+		vector<double> yaw_coeff_full;
+		plan_optimal_trajectory(traj, traj_list_size, x_coeff_full, y_coeff_full,
+                                        z_coeff_full, yaw_coeff_full);
+
+		send_mavlink_polynomial_trajectory_write(traj_list_size);
+		//TODO: wait for uav ack
+
+		for(int i = 0; i < traj_list_size; i++) {
+			float x_coeff[8], y_coeff[8], z_coeff[8];
+			float yaw_coeff[4];
+
+			get_polynomial_coefficient_from_list(x_coeff_full, x_coeff, i);
+			get_polynomial_coefficient_from_list(y_coeff_full, y_coeff, i);
+			//get_polynomial_coefficient_from_list(z_coeff_full, z_coeff, i);
+			//get_polynomial_coefficient_from_list(yaw_coeff_full, yaw_coeff, i);
+
+			send_mavlink_polynomial_trajectory_item(x_coeff, y_coeff, z_coeff, yaw_coeff);
+			//TODO: wait for uav ack
+		}
+
 	} else {
 		printf("abort.\n\r");
 	}

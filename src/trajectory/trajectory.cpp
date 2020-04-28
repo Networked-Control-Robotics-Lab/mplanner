@@ -1,10 +1,10 @@
+#include <vector>
 #include "math.h"
 #include "trajectory.hpp"
 #include "ros_thread.hpp"
 #include "planner.hpp"
 #include "matplotlibcpp.h"
 
-using namespace std;
 namespace plt = matplotlibcpp;
 
 void print_trajectory_polynomial_coeff(std::vector<double> &poly_coeff)
@@ -51,8 +51,20 @@ void get_polynomial_coefficient_from_list(std::vector<double> &poly_x, double *c
 	c[7] = poly_x.at(index * 8 + 7);
 }
 
+void get_polynomial_coefficient_from_list(std::vector<double> &poly_x, float *c, float index)
+{
+	c[0] = (float)poly_x.at(index * 8 + 0);
+	c[1] = (float)poly_x.at(index * 8 + 1);
+	c[2] = (float)poly_x.at(index * 8 + 2);
+	c[3] = (float)poly_x.at(index * 8 + 3);
+	c[4] = (float)poly_x.at(index * 8 + 4);
+	c[5] = (float)poly_x.at(index * 8 + 5);
+	c[6] = (float)poly_x.at(index * 8 + 6);
+	c[7] = (float)poly_x.at(index * 8 + 7);
+}
+
 void plot_optimal_trajectory(std::vector<double> &poly_x, std::vector<double> &poly_y,
-                             std::vector<double> &poly_yaw, vector<float> &flight_time)
+                             std::vector<double> &poly_yaw, std::vector<float> &flight_time)
 {
 	double total_time = 0.0f;
 	for(int i = 0; i < flight_time.size(); i++) {
@@ -63,7 +75,7 @@ void plot_optimal_trajectory(std::vector<double> &poly_x, std::vector<double> &p
         int n = total_time * pts_per_sec;
 	double period = total_time / n;
 
-        vector<double> x(n), y(n); //trajectory waypoints to plot
+        std::vector<double> x(n), y(n); //trajectory waypoints to plot
 
 	double cx[8], cy[8];
 	/* select segments polynomial */
@@ -89,11 +101,13 @@ void plot_optimal_trajectory(std::vector<double> &poly_x, std::vector<double> &p
 	plt::close();
 }
 
-void plan_optimal_trajectory(trajectory_t *traj, int segment_cnts)
+void plan_optimal_trajectory(trajectory_t *traj, int segment_cnts,
+                             std::vector<double> &poly_x, std::vector<double> &poly_y,
+                             std::vector<double> &poly_z, std::vector<double> &poly_yaw)
 {
 	/* solve quadratic programming problem to get velocity and acceleration */
 	path_def path;
-	vector<float> flight_time;
+	std::vector<float> flight_time;
 
 	for(int i = 0; i < segment_cnts; i++) {
 		trajectory_profile p_start;
@@ -117,7 +131,6 @@ void plan_optimal_trajectory(trajectory_t *traj, int segment_cnts)
 	}
 
 	/* activate quadratic programming solver */
-	std::vector<double> poly_x, poly_y, poly_yaw;
 	system("/bin/stty cooked echo");
 	qptrajectory plan;
 	plan.get_profile(path ,path.size(), 0.02, poly_x, poly_y, poly_yaw);
