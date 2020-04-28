@@ -2,13 +2,25 @@
 #define __TRAJECTORY_HPP__
 
 typedef struct {
-	float pos[3];
-	float vel[3];
-	float acc[3];
-	float yaw;
-	float yaw_rate;
-} trajectory_wp_t;
+	struct {
+		float pos[3];
+		float vel[3];
+		float acc[3];
+		float yaw;
+		float yaw_rate;
+	} start;
 
-void plan_optimal_trajectory(trajectory_wp_t *wp_list, int waypoint_count);
+	struct {
+		float pos[3];
+		float vel[3];
+		float acc[3];
+		float yaw;
+		float yaw_rate;
+	} end;
+
+	float flight_time;
+} trajectory_t;
+
+void plan_optimal_trajectory(trajectory_t *traj, int segment_cnts);
 
 #endif

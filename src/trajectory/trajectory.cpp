@@ -101,30 +101,29 @@ void plot_optimal_trajectory(std::vector<double> &poly_x, std::vector<double> &p
 	plt::show();
 }
 
-void plan_optimal_trajectory(trajectory_wp_t *wp_list, int waypoint_count)
+void plan_optimal_trajectory(trajectory_t *traj, int segment_cnts)
 {
 	/* solve quadratic programming problem to get velocity and acceleration */
 	path_def path;
-	trajectory_profile p_last;
 
-	/* generate input segments */
-	p_last.pos << wp_list[0].pos[0],
-		      wp_list[0].pos[1],
-                      wp_list[0].pos[2];
-	p_last.vel << 0.0f, 0.0f, 0.0f;
-	p_last.acc << 0.0f, 0.0f, 0.0f;
-	//p_last.yaw << 0.0f;
-	for(int i = 1; i < waypoint_count; i++) {
-		trajectory_profile p_now;
-		p_now.pos << wp_list[i].pos[0],
-                             wp_list[i].pos[1],
-                             wp_list[i].pos[2];
-		p_now.vel << 0.0f, 0.0f, 0.0f;
-		p_now.acc << 0.0f, 0.0f, 0.0f;
-		//p_now.yaw << 0.0f;
+	for(int i = 0; i < segment_cnts; i++) {
+		trajectory_profile p_start;
+		p_start.pos << traj[i].start.pos[0],
+		               traj[i].start.pos[1],
+                               traj[i].start.pos[2];
+		p_start.vel << 0.0f, 0.0f, 0.0f;
+		p_start.acc << 0.0f, 0.0f, 0.0f;
+		//p_start.yaw << 0.0f;
 
-		path.push_back(segments(p_last, p_now, 2));
-		p_last = p_now;
+		trajectory_profile p_end;
+		p_end.pos << traj[i].end.pos[0],
+                             traj[i].end.pos[1],
+                             traj[i].end.pos[2];
+		p_end.vel << 0.0f, 0.0f, 0.0f;
+		p_end.acc << 0.0f, 0.0f, 0.0f;
+		//p_end.yaw << 0.0f;
+
+		path.push_back(segments(p_start, p_end, traj[i].flight_time));
 	}
 
 	/* activate quadratic programming solver */

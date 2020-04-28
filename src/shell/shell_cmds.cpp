@@ -79,29 +79,40 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		send_mavlink_trajectory_following_cmd(true);
 		sleep(0.5);
 
-		//TODO: improve the hardcode
-	        trajectory_wp_t waypoints[5];
-		waypoints[0].pos[0] = 1.0f;
-		waypoints[0].pos[1] = 0.0f;
-		waypoints[0].pos[2] = 0.6f;
+		trajectory_t traj[4];
+		traj[0].start.pos[0] = 1.0f;
+		traj[0].start.pos[1] = 0.0f;
+		traj[0].start.pos[2] = 0.6f;
+		traj[0].end.pos[0] = 0.0;
+		traj[0].end.pos[1] = 1.0f;
+		traj[0].end.pos[2] = 0.6f;
+		traj[0].flight_time = 2.0f;
 
-		waypoints[1].pos[0] = 0.0f;
-		waypoints[1].pos[1] = 1.0f;
-		waypoints[1].pos[2] = 0.6f;
+		traj[1].start.pos[0] = 0.0f;
+		traj[1].start.pos[1] = 1.0f;
+		traj[1].start.pos[2] = 0.6f;
+		traj[1].end.pos[0] = -1.0f;
+		traj[1].end.pos[1] = 0.0f;
+		traj[1].end.pos[2] = 0.6f;
+		traj[1].flight_time = 2.0f;
 
-		waypoints[2].pos[0] = -1.0f;
-		waypoints[2].pos[1] = 0.0f;
-		waypoints[2].pos[2] = 0.6f;
+		traj[2].start.pos[0] = -1.0f;
+		traj[2].start.pos[1] = 0.0f;
+		traj[2].start.pos[2] = 0.6f;
+		traj[2].end.pos[0] = 0.0f;
+		traj[2].end.pos[1] = -1.0f;
+		traj[2].end.pos[2] = 0.6f;
+		traj[2].flight_time = 2.0f;
 
-		waypoints[3].pos[0] = 0.0f;
-		waypoints[3].pos[1] = -1.0f;
-		waypoints[3].pos[2] = 0.6f;
+		traj[3].start.pos[0] = 0.0f;
+		traj[3].start.pos[1] = -1.0f;
+		traj[3].start.pos[2] = 0.6f;
+		traj[3].end.pos[0] = 1.0f;
+		traj[3].end.pos[1] = 0.0f;
+		traj[3].end.pos[2] = 0.6f;
+		traj[3].flight_time = 2.0f;
 
-		waypoints[4].pos[0] = waypoints[0].pos[0];
-		waypoints[4].pos[1] = waypoints[0].pos[1];
-		waypoints[4].pos[2] = waypoints[0].pos[2];
-
-		plan_optimal_trajectory(waypoints, 5);
+		plan_optimal_trajectory(traj, 4);
 	} else {
 		printf("abort.\n\r");
 	}
