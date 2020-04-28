@@ -50,61 +50,48 @@ void get_polynomial_coefficient_from_list(std::vector<double> &poly_x, double *c
 }
 
 void plot_optimal_trajectory(std::vector<double> &poly_x, std::vector<double> &poly_y,
-                             std::vector<double> &poly_yaw/*, float *time*/)
+                             std::vector<double> &poly_yaw, vector<float> &flight_time)
 {
-	double total_time = 8;
-        int n = 100; //sample counts
+	double total_time = 0.0f;
+	for(int i = 0; i < flight_time.size(); i++) {
+		total_time += flight_time.at(i);
+	}
+
+	int pts_per_sec = 20;
+        int n = total_time * pts_per_sec;
 	double period = total_time / n;
 
-        vector<double> x(n), y(n);
+        vector<double> x(n), y(n); //trajectory waypoints to plot
 
-	double t;
 	double cx[8], cy[8];
+	/* select segments polynomial */
+	for(int i = 0; i < poly_x.size() / 8; i++) {
+		/* reset timer for every new trajectory segments */
+		double t = 0.0f;
 
-	t = 0;
-	for(int i = 0; i < 25; i++) {
-		get_polynomial_coefficient_from_list(poly_x, cx, 0);
-		get_polynomial_coefficient_from_list(poly_y, cy, 0);
-		x.at(i) = calc_polynomial(cx, t);
-                y.at(i) = calc_polynomial(cy, t);
-		t += period;
-	}
+		/* calculate waypoint with respect to the time and polynomial coefficients */
+		for(int j = 0; j < pts_per_sec * flight_time.at(i); j++) {
+			get_polynomial_coefficient_from_list(poly_x, cx, i);
+			get_polynomial_coefficient_from_list(poly_y, cy, i);
 
-	t = 0;
-	for(int i = 25; i < 50; i++) {
-		get_polynomial_coefficient_from_list(poly_x, cx, 1);
-		get_polynomial_coefficient_from_list(poly_y, cy, 1);
-		x.at(i) = calc_polynomial(cx, t);
-                y.at(i) = calc_polynomial(cy, t);
-		t += period;
-	}
+			int curr_index = (i * flight_time.at(i) * pts_per_sec) + j;
+			x.at(curr_index) = calc_polynomial(cx, t);
+	                y.at(curr_index) = calc_polynomial(cy, t);
 
-	t = 0;
-	for(int i = 50; i < 75; i++) {
-		get_polynomial_coefficient_from_list(poly_x, cx, 2);
-		get_polynomial_coefficient_from_list(poly_y, cy, 2);
-		x.at(i) = calc_polynomial(cx, t);
-                y.at(i) = calc_polynomial(cy, t);
-		t += period;
-	}
-
-	t = 0;
-	for(int i = 75; i < 100; i++) {
-		get_polynomial_coefficient_from_list(poly_x, cx, 3);
-		get_polynomial_coefficient_from_list(poly_y, cy, 3);
-		x.at(i) = calc_polynomial(cx, t);
-                y.at(i) = calc_polynomial(cy, t);
-		t += period;
+			t += period;
+		}
 	}
 
         plt::plot(x, y);
 	plt::show();
+	plt::close();
 }
 
 void plan_optimal_trajectory(trajectory_t *traj, int segment_cnts)
 {
 	/* solve quadratic programming problem to get velocity and acceleration */
 	path_def path;
+	vector<float> flight_time;
 
 	for(int i = 0; i < segment_cnts; i++) {
 		trajectory_profile p_start;
@@ -123,6 +110,7 @@ void plan_optimal_trajectory(trajectory_t *traj, int segment_cnts)
 		p_end.acc << 0.0f, 0.0f, 0.0f;
 		//p_end.yaw << 0.0f;
 
+		flight_time.push_back(traj[i].flight_time);
 		path.push_back(segments(p_start, p_end, traj[i].flight_time));
 	}
 
@@ -143,5 +131,5 @@ void plan_optimal_trajectory(trajectory_t *traj, int segment_cnts)
 	printf("polynomial coefficients of yaw trajectory:\n\r");
 	print_trajectory_polynomial_coeff(poly_yaw);
 
-	plot_optimal_trajectory(poly_x, poly_y, poly_yaw);
+	plot_optimal_trajectory(poly_x, poly_y, poly_yaw, flight_time);
 }
