@@ -52,7 +52,7 @@ void get_polynomial_coefficient_from_list(std::vector<double> &poly_x, double *c
 void plot_optimal_trajectory(std::vector<double> &poly_x, std::vector<double> &poly_y,
                              std::vector<double> &poly_yaw/*, float *time*/)
 {
-	double total_time = 10;
+	double total_time = 8;
         int n = 100; //sample counts
 	double period = total_time / n;
 
