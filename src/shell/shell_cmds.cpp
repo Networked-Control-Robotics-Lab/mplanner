@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include "../mavlink/publisher.hpp"
+#include "../mavlink/receiver.hpp"
 #include "quadshell.hpp"
 #include "trajectory.hpp"
 
@@ -122,8 +123,17 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		plan_optimal_trajectory(traj, traj_list_size, x_coeff_full, y_coeff_full,
                                         z_coeff_full, yaw_coeff_full);
 
-		send_mavlink_polynomial_trajectory_write(traj_list_size);
-		//TODO: wait for uav ack
+		uint8_t traj_ack_val;
+
+		int send_trial = 10;
+		//TODO: print trial times
+		
+		do {
+			send_mavlink_polynomial_trajectory_write(traj_list_size);
+			bool timeout = wait_mavlink_polynomial_trajectory_ack(&traj_ack_val);
+			if(timeout == false) break;
+		} while(send_trial--);
+		//TODO: handling ack values
 
 		for(int i = 0; i < traj_list_size; i++) {
 			float x_coeff[8], y_coeff[8], z_coeff[8];
@@ -134,8 +144,13 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 			//get_polynomial_coefficient_from_list(z_coeff_full, z_coeff, i);
 			//get_polynomial_coefficient_from_list(yaw_coeff_full, yaw_coeff, i);
 
-			send_mavlink_polynomial_trajectory_item(x_coeff, y_coeff, z_coeff, yaw_coeff);
-			//TODO: wait for uav ack
+			do {
+				send_mavlink_polynomial_trajectory_item(x_coeff, y_coeff, z_coeff,
+                                                                        yaw_coeff);
+				bool timeout = wait_mavlink_polynomial_trajectory_ack(&traj_ack_val);
+				if(timeout == false) break;
+			} while(send_trial--);
+			//TODO: handling ack values
 		}
 
 	} else {
