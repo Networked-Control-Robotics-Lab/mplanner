@@ -25,16 +25,18 @@ void print_trajectory_polynomial_coeff(std::vector<double> &poly_coeff)
 	}
 }
 
-double calc_polynomial(double *c, double t)
+double calc_7th_polynomial(double *c, double t)
 {
-	return c[0] +
-	       (c[1] * pow(t, 1)) +
-               (c[2] * pow(t, 2)) +
-               (c[3] * pow(t, 3)) +
-               (c[4] * pow(t, 4)) +
-               (c[5] * pow(t, 5)) +
-               (c[6] * pow(t, 6)) +
-               (c[7] * pow(t, 7));
+	double t_powers[8];
+	t_powers[0] = 1;
+	double ret_poly = c[0] * t_powers[0];
+
+	for(int i = 1; i < 8; i++) {
+		t_powers[i] = t_powers[i - 1] * t;
+		ret_poly += c[i] * t_powers[i];
+	}
+
+	return ret_poly;
 }
 
 void get_polynomial_coefficient_from_list(std::vector<double> &poly_x, double *c, float index)
@@ -75,8 +77,8 @@ void plot_optimal_trajectory(std::vector<double> &poly_x, std::vector<double> &p
 			get_polynomial_coefficient_from_list(poly_y, cy, i);
 
 			int curr_index = (i * flight_time.at(i) * pts_per_sec) + j;
-			x.at(curr_index) = calc_polynomial(cx, t);
-	                y.at(curr_index) = calc_polynomial(cy, t);
+			x.at(curr_index) = calc_7th_polynomial(cx, t);
+	                y.at(curr_index) = calc_7th_polynomial(cy, t);
 
 			t += period;
 		}
