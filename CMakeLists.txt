@@ -20,7 +20,7 @@ catkin_package(CATKIN_DEPENDS message_runtime)
 set(INC
     ./ 
     ./src/lib/mavlink_v2/common
-    ./src/lib/mavlink_v2/ncrl
+    ./src/lib/mavlink_v2/ncrl_mavlink
     ./src/lib/matplotlib-cpp
     ./src
     ./src/threads

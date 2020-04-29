@@ -1,6 +1,6 @@
 #include <ros/ros.h>
-#include "mavlink.h"
-#include "ncrl.h"
+#include "../lib/mavlink_v2/ncrl_mavlink/mavlink.h"
+#include "ncrl_mavlink.h"
 #include "pose.hpp"
 
 uav_pose_t uav_pose;
@@ -48,10 +48,17 @@ void mavlink_polynomial_trajectory_ack_handler(mavlink_message_t *received_msg)
 
 bool wait_mavlink_polynomial_trajectory_ack(uint8_t *ack_val)
 {
+	double start_time = ros::Time::now().toSec();
+
 	//TODO: replace with spinlock?
-	while(received_traj_ack) {
-		//TODO: implement timeout mechanisim
-		//return false;
+	while(received_traj_ack == false) {
+		double current_time = ros::Time::now().toSec();
+		double elapsed_time = current_time - start_time;
+
+		/* three seconds timeout */
+		if(elapsed_time >= 3) {
+			return false;
+		}
 	}
 
 	received_traj_ack = false;

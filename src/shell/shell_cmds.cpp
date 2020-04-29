@@ -76,13 +76,6 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 	shell_cli(&shell);
 
 	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
-		send_mavlink_trajectory_following_cmd(true);
-		sleep(0.5);
-		send_mavlink_trajectory_following_cmd(true);
-		sleep(0.5);
-		send_mavlink_trajectory_following_cmd(true);
-		sleep(0.5);
-
 		trajectory_t traj[4];
 		traj[0].start.pos[0] = 1.0f;
 		traj[0].start.pos[1] = 0.0f;
@@ -129,11 +122,21 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		//TODO: print trial times
 		
 		do {
+			printf("mavlink: send polynomial trajectory write message. (header)\n\r");
 			send_mavlink_polynomial_trajectory_write(traj_list_size);
-			bool timeout = wait_mavlink_polynomial_trajectory_ack(&traj_ack_val);
-			if(timeout == false) break;
-		} while(send_trial--);
+			bool ack_received = wait_mavlink_polynomial_trajectory_ack(&traj_ack_val);
+			if(ack_received == true) {
+				break;
+			} else {
+				printf("timeout: polynomial trajectory write (header) is failed.\n\r");
+			}
+		} while(--send_trial);
 		//TODO: handling ack values
+
+		if(send_trial == 0) {
+			printf("trajectory send failed.\n\r");
+			return;
+		}
 
 		for(int i = 0; i < traj_list_size; i++) {
 			float x_coeff[8], y_coeff[8], z_coeff[8];
@@ -144,13 +147,24 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 			//get_polynomial_coefficient_from_list(z_coeff_full, z_coeff, i);
 			//get_polynomial_coefficient_from_list(yaw_coeff_full, yaw_coeff, i);
 
+			send_trial = 10;
 			do {
-				send_mavlink_polynomial_trajectory_item(x_coeff, y_coeff, z_coeff,
+				printf("mavlink: send polynomial trajectory item message.\n\r");
+				send_mavlink_polynomial_trajectory_item(i, x_coeff, y_coeff, z_coeff,
                                                                         yaw_coeff);
-				bool timeout = wait_mavlink_polynomial_trajectory_ack(&traj_ack_val);
-				if(timeout == false) break;
+				bool ack_received = wait_mavlink_polynomial_trajectory_ack(&traj_ack_val);
+				if(ack_received == true) {
+					break;
+				} else {
+					printf("timeout: polynomial trajectory item is failed.\n\r");
+				}
 			} while(send_trial--);
 			//TODO: handling ack values
+
+			if(send_trial == 0) {
+				printf("trajectory send failed.\n\r");
+				return;
+			}
 		}
 
 	} else {

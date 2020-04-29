@@ -1,6 +1,7 @@
 #include <iostream>
 #include "serial.hpp"
-#include "mavlink.h"
+#include "../lib/mavlink_v2/ncrl_mavlink/mavlink.h"
+#include "../lib/mavlink_v2/ncrl_mavlink/ncrl_mavlink.h"
 #include "../mavlink/publisher.hpp"
 #include "../mavlink/parser.hpp"
 
