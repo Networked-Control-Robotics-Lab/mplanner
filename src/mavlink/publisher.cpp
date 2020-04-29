@@ -160,19 +160,22 @@ void send_mavlink_polynomial_trajectory_stop()
 	send_mavlink_msg_to_serial(&msg);
 }
 
-void send_mavlink_polynomial_trajectory_write(uint8_t list_size)
+void send_mavlink_polynomial_trajectory_write(uint8_t list_size, bool z_enabled, bool yaw_enabled)
 {
+	uint8_t _z_enabled = (z_enabled == true ? 1 : 0);
+	uint8_t _yaw_enabled = (yaw_enabled == true ? 1 : 0);
+
         uint8_t target_system = 0;
         uint8_t target_component = 0;
 
 	mavlink_message_t msg;
 	mavlink_msg_polynomial_trajectory_write_pack_chan(0, 1, MAVLINK_COMM_1, &msg, target_system,
-                                                          target_component, list_size);
+                                                          target_component, list_size,
+                                                          _z_enabled, _yaw_enabled);
 	send_mavlink_msg_to_serial(&msg);
 }
 
-void send_mavlink_polynomial_trajectory_item(uint8_t index, float *x_coeff, float *y_coeff,
-                                             float *z_coeff, float *yaw_coeff)
+void send_mavlink_polynomial_trajectory_item(uint8_t index, uint8_t type, float *traj_poly_coeff)
 {
 	uint8_t target_system = 0; 
 	uint8_t target_component = 0;
@@ -180,6 +183,6 @@ void send_mavlink_polynomial_trajectory_item(uint8_t index, float *x_coeff, floa
 	mavlink_message_t msg;
 	mavlink_msg_polynomial_trajectory_item_pack_chan(0, 1, MAVLINK_COMM_1, &msg,
                                                     target_system, target_component,
-                                                    index, x_coeff, y_coeff, z_coeff, yaw_coeff);
+                                                    type, index, traj_poly_coeff);
 	send_mavlink_msg_to_serial(&msg);
 }

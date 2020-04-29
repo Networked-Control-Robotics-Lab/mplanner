@@ -8,8 +8,7 @@ void send_mavlink_position_target(float *pos_enu, float *vel_enu, float *acc_enu
 
 void send_mavlink_polynomial_trajectory_start(bool altitude_fixed);
 void send_mavlink_polynomial_trajectory_stop();
-void send_mavlink_polynomial_trajectory_write(uint8_t list_size);
-void send_mavlink_polynomial_trajectory_item(uint8_t index, float *x_coeff, float *y_coeff,
-                                             float *z_coeff, float *yaw_coeff);
+void send_mavlink_polynomial_trajectory_write(uint8_t list_size, bool z_enabled, bool yaw_enabled);
+void send_mavlink_polynomial_trajectory_item(uint8_t index, uint8_t type, float *traj_poly_coeff);
 
 #endif
