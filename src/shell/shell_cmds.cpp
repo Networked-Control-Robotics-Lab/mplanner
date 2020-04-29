@@ -75,14 +75,14 @@ bool send_poly_traj_write_and_confirm_recpt(uint8_t *traj_ack_val, uint8_t list_
 {
 	int send_trial = 10;
 	do {
-		printf("mavlink: send polynomial trajectory write message. (header)\n\r");
+		printf("mavlink: send polynomial_trajectory_write message. (handshacking)\n\r");
 		send_mavlink_polynomial_trajectory_write(list_size, z_enabled, yaw_enabled);
 
 		bool ack_received = wait_mavlink_polynomial_trajectory_ack(traj_ack_val);
 		if(ack_received == true) {
 			return true;
 		} else {
-			printf("timeout: polynomial trajectory write (header) is failed.\n\r");
+			printf("timeout!\n\r");
 		}
 	} while(--send_trial);
 
@@ -92,16 +92,32 @@ bool send_poly_traj_write_and_confirm_recpt(uint8_t *traj_ack_val, uint8_t list_
 bool send_poly_traj_item_and_confirm_recpt(uint8_t *traj_ack_val, uint8_t index, uint8_t type,
                                            float *poly_coeff)
 {
+	string s;
+	switch(type) {
+	case TRAJECTORY_POSITION_X:
+		s = "x";
+		break;
+	case TRAJECTORY_POSITION_Y:
+		s = "y";
+		break;
+	case TRAJECTORY_POSITION_Z:
+		s = "z";
+		break;
+	case TRAJECTORY_ANGLE_YAW:
+		s = "yaw";
+		break;
+	}
+
 	int send_trial = 10;
 	do {
-		printf("mavlink: send polynomial trajectory item message.\n\r");
+		printf("mavlink: [#%d] send %s trajectory.\n\r", index, s.c_str());
 		send_mavlink_polynomial_trajectory_item(index, type, poly_coeff);
 
 		bool ack_received = wait_mavlink_polynomial_trajectory_ack(traj_ack_val);
 		if(ack_received == true) {
 			return true;
 		} else {
-			printf("timeout: polynomial trajectory item is failed.\n\r");
+			printf("timeout!\n\r");
 		}
 	} while(--send_trial);
 
@@ -174,18 +190,18 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 
 			if(!send_poly_traj_item_and_confirm_recpt(&traj_ack_val, i,
                                                                   TRAJECTORY_POSITION_X, x_coeff)) {
-				printf("polynomial trajectory item sending is failed.");
+				printf("polynomial trajectory item sending is failed.\n\r");
 				return;
 			}
 
 			if(!send_poly_traj_item_and_confirm_recpt(&traj_ack_val, i,
                                                                   TRAJECTORY_POSITION_Y, y_coeff)) {
-				printf("polynomial trajectory item sending is failed.");
+				printf("polynomial trajectory item sending is failed.\n\r");
 				return;
 			}
 			if(!send_poly_traj_item_and_confirm_recpt(&traj_ack_val, i,
                                                                   TRAJECTORY_ANGLE_YAW, yaw_coeff)) {
-				printf("polynomial trajectory item sending is failed.");
+				printf("polynomial trajectory item sending is failed.\n\r");
 				return;
 			}
 		}
