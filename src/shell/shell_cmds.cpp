@@ -151,12 +151,12 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		traj[0].start.pos[1] = 0.0f;
 		traj[0].start.pos[2] = 0.6f;
 		traj[0].end.pos[0] = 0.0;
-		traj[0].end.pos[1] = 1.0f;
+		traj[0].end.pos[1] = 0.5f;
 		traj[0].end.pos[2] = 0.6f;
 		traj[0].flight_time = 2.0f;
 
 		traj[1].start.pos[0] = 0.0f;
-		traj[1].start.pos[1] = 1.0f;
+		traj[1].start.pos[1] = 0.5f;
 		traj[1].start.pos[2] = 0.6f;
 		traj[1].end.pos[0] = -1.0f;
 		traj[1].end.pos[1] = 0.0f;
@@ -167,12 +167,12 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		traj[2].start.pos[1] = 0.0f;
 		traj[2].start.pos[2] = 0.6f;
 		traj[2].end.pos[0] = 0.0f;
-		traj[2].end.pos[1] = -1.0f;
+		traj[2].end.pos[1] = -0.5f;
 		traj[2].end.pos[2] = 0.6f;
 		traj[2].flight_time = 2.0f;
 
 		traj[3].start.pos[0] = 0.0f;
-		traj[3].start.pos[1] = -1.0f;
+		traj[3].start.pos[1] = -0.5f;
 		traj[3].start.pos[2] = 0.6f;
 		traj[3].end.pos[0] = 1.0f;
 		traj[3].end.pos[1] = 0.0f;
