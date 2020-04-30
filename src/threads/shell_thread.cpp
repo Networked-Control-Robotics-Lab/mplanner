@@ -8,6 +8,8 @@ void shell_cmd_help(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 struct cmd_list_entry shell_cmd_list[] = {
 	DEF_SHELL_CMD(help)
 	DEF_SHELL_CMD(clear)
+	DEF_SHELL_CMD(exit)
+	DEF_SHELL_CMD(quit)
 	DEF_SHELL_CMD(arm)
 	DEF_SHELL_CMD(disarm)
 	DEF_SHELL_CMD(takeoff)
