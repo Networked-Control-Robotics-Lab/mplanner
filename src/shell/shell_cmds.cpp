@@ -103,7 +103,7 @@ bool send_poly_traj_write_and_confirm_recpt(uint8_t *traj_ack_val, uint8_t list_
 }
 
 bool send_poly_traj_item_and_confirm_recpt(uint8_t *traj_ack_val, uint8_t index, uint8_t type,
-                                           float *poly_coeff)
+                                           float *poly_coeff, float flight_time)
 {
 	string s;
 	switch(type) {
@@ -124,7 +124,7 @@ bool send_poly_traj_item_and_confirm_recpt(uint8_t *traj_ack_val, uint8_t index,
 	int send_trial = 10;
 	do {
 		printf("mavlink: [#%d] send %s trajectory.\n\r", index, s.c_str());
-		send_mavlink_polynomial_trajectory_item(index, type, poly_coeff);
+		send_mavlink_polynomial_trajectory_item(index, type, poly_coeff, flight_time);
 
 		bool ack_received = wait_mavlink_polynomial_trajectory_ack(traj_ack_val);
 		if(ack_received == true) {
@@ -138,7 +138,7 @@ bool send_poly_traj_item_and_confirm_recpt(uint8_t *traj_ack_val, uint8_t index,
 	return false;
 }
 
-void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
+void shell_cmd_traj_plan(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
 	char user_agree[CMD_LEN_MAX];
 	struct shell_struct shell;
@@ -153,7 +153,7 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		traj[0].end.pos[0] = 0.0;
 		traj[0].end.pos[1] = 0.5f;
 		traj[0].end.pos[2] = 0.6f;
-		traj[0].flight_time = 2.0f;
+		traj[0].flight_time = 1.0f;
 
 		traj[1].start.pos[0] = 0.0f;
 		traj[1].start.pos[1] = 0.5f;
@@ -161,7 +161,7 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		traj[1].end.pos[0] = -1.0f;
 		traj[1].end.pos[1] = 0.0f;
 		traj[1].end.pos[2] = 0.6f;
-		traj[1].flight_time = 2.0f;
+		traj[1].flight_time = 1.0f;
 
 		traj[2].start.pos[0] = -1.0f;
 		traj[2].start.pos[1] = 0.0f;
@@ -169,7 +169,7 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		traj[2].end.pos[0] = 0.0f;
 		traj[2].end.pos[1] = -0.5f;
 		traj[2].end.pos[2] = 0.6f;
-		traj[2].flight_time = 2.0f;
+		traj[2].flight_time = 1.0f;
 
 		traj[3].start.pos[0] = 0.0f;
 		traj[3].start.pos[1] = -0.5f;
@@ -177,7 +177,7 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		traj[3].end.pos[0] = 1.0f;
 		traj[3].end.pos[1] = 0.0f;
 		traj[3].end.pos[2] = 0.6f;
-		traj[3].flight_time = 2.0f;
+		traj[3].flight_time = 1.0f;
 
 		int traj_list_size = 4; //TODO: fix hardcode
 
@@ -204,20 +204,23 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 			//get_polynomial_coefficient_from_list(yaw_coeff_full, yaw_coeff, i);
 
 			if(!send_poly_traj_item_and_confirm_recpt(&traj_ack_val, i,
-                                                                  TRAJECTORY_POSITION_X, x_coeff)) {
+                                                                  TRAJECTORY_POSITION_X, x_coeff,
+                                                                  traj[i].flight_time)) {
 				printf("polynomial trajectory item sending is failed.\n\r");
 				return;
 			}
 
 			if(!send_poly_traj_item_and_confirm_recpt(&traj_ack_val, i,
-                                                                  TRAJECTORY_POSITION_Y, y_coeff)) {
+                                                                  TRAJECTORY_POSITION_Y, y_coeff,
+                                                                  traj[i].flight_time)) {
 				printf("polynomial trajectory item sending is failed.\n\r");
 				return;
 			}
 
 #if 0
 			if(!send_poly_traj_item_and_confirm_recpt(&traj_ack_val, i,
-                                                                  TRAJECTORY_POSITION_Z, z_coeff)) {
+                                                                  TRAJECTORY_POSITION_Z, z_coeff,
+                                                                  traj[i].flight_time)) {
 				printf("polynomial trajectory item sending is failed.\n\r");
 				return;
 			}
@@ -225,7 +228,8 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 
 #if 0
 			if(!send_poly_traj_item_and_confirm_recpt(&traj_ack_val, i,
-                                                                  TRAJECTORY_ANGLE_YAW, yaw_coeff)) {
+                                                                  TRAJECTORY_ANGLE_YAW, yaw_coeff,
+                                                                  traj[i].flight_time)) {
 				printf("polynomial trajectory item sending is failed.\n\r");
 				return;
 			}
@@ -236,4 +240,21 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		printf("abort.\n\r");
 	}
 
+}
+
+void shell_cmd_traj_start(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
+{
+	printf("mavlink: send polynomial_trajectory_start message.\n\r");
+	send_mavlink_polynomial_trajectory_start(false);
+}
+
+void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
+{
+	if(param_cnt == 2) {
+		if(strcmp(param_list[1], "plan") == 0) {
+			shell_cmd_traj_plan(param_list, param_cnt);
+		} else if(strcmp(param_list[1], "start") == 0) {
+			shell_cmd_traj_start(param_list, param_cnt);
+		}
+	}
 }

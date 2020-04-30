@@ -135,8 +135,10 @@ void send_mavlink_position_target(float *pos_enu, float *vel_enu, float *acc_enu
 	send_mavlink_msg_to_serial(&msg);
 }
 
-void send_mavlink_polynomial_trajectory_start(bool altitude_fixed)
+void send_mavlink_polynomial_trajectory_start(bool loop)
 {
+	bool altitude_fixed = true;
+
 	uint8_t target_system = 0;
 	uint8_t target_component = 0;
 
@@ -175,7 +177,8 @@ void send_mavlink_polynomial_trajectory_write(uint8_t list_size, bool z_enabled,
 	send_mavlink_msg_to_serial(&msg);
 }
 
-void send_mavlink_polynomial_trajectory_item(uint8_t index, uint8_t type, float *traj_poly_coeff)
+void send_mavlink_polynomial_trajectory_item(uint8_t index, uint8_t type, float *traj_poly_coeff,
+                                             float flight_time)
 {
 	uint8_t target_system = 0; 
 	uint8_t target_component = 0;
@@ -183,6 +186,7 @@ void send_mavlink_polynomial_trajectory_item(uint8_t index, uint8_t type, float 
 	mavlink_message_t msg;
 	mavlink_msg_polynomial_trajectory_item_pack_chan(0, 1, MAVLINK_COMM_1, &msg,
                                                     target_system, target_component,
-                                                    type, index, traj_poly_coeff);
+                                                    type, index, traj_poly_coeff,
+                                                    flight_time);
 	send_mavlink_msg_to_serial(&msg);
 }
