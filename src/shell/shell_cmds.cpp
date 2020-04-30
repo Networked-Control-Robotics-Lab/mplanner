@@ -80,6 +80,7 @@ bool send_poly_traj_write_and_confirm_recpt(uint8_t *traj_ack_val, uint8_t list_
 
 		bool ack_received = wait_mavlink_polynomial_trajectory_ack(traj_ack_val);
 		if(ack_received == true) {
+			printf("succeeded.\n\r");
 			return true;
 		} else {
 			printf("timeout!\n\r");
@@ -115,6 +116,7 @@ bool send_poly_traj_item_and_confirm_recpt(uint8_t *traj_ack_val, uint8_t index,
 
 		bool ack_received = wait_mavlink_polynomial_trajectory_ack(traj_ack_val);
 		if(ack_received == true) {
+			printf("succeeded.\n\r");
 			return true;
 		} else {
 			printf("timeout!\n\r");
@@ -177,6 +179,7 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 		if(!send_poly_traj_write_and_confirm_recpt(&traj_ack_val, traj_list_size,
                                                            false, false)) {
 			printf("polynomial trajectory handshacking failed.\n\r");
+			return;
 		}
 
 		for(int i = 0; i < traj_list_size; i++) {
@@ -199,11 +202,22 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 				printf("polynomial trajectory item sending is failed.\n\r");
 				return;
 			}
+
+#if 0
+			if(!send_poly_traj_item_and_confirm_recpt(&traj_ack_val, i,
+                                                                  TRAJECTORY_POSITION_Z, z_coeff)) {
+				printf("polynomial trajectory item sending is failed.\n\r");
+				return;
+			}
+#endif
+
+#if 0
 			if(!send_poly_traj_item_and_confirm_recpt(&traj_ack_val, i,
                                                                   TRAJECTORY_ANGLE_YAW, yaw_coeff)) {
 				printf("polynomial trajectory item sending is failed.\n\r");
 				return;
 			}
+#endif
 		}
 
 	} else {

@@ -92,13 +92,15 @@ void plot_optimal_trajectory(std::vector<double> &poly_x, std::vector<double> &p
 			x.at(curr_index) = calc_7th_polynomial(cx, t);
 	                y.at(curr_index) = calc_7th_polynomial(cy, t);
 
+			ros_trajectory_waypoint_push_back(x.at(curr_index), y.at(curr_index), 0.6f);
+
 			t += period;
 		}
 	}
 
-        plt::plot(x, y);
-	plt::show();
-	plt::close();
+        //plt::plot(x, y);
+	//plt::show();
+	//plt::close();
 }
 
 void plan_optimal_trajectory(trajectory_t *traj, int segment_cnts,
@@ -143,8 +145,8 @@ void plan_optimal_trajectory(trajectory_t *traj, int segment_cnts,
 	printf("polynomial coefficients of y trajectory:\n\r");
 	print_trajectory_polynomial_coeff(poly_y);
 
-	printf("polynomial coefficients of yaw trajectory:\n\r");
-	print_trajectory_polynomial_coeff(poly_yaw);
+	//printf("polynomial coefficients of yaw trajectory:\n\r");
+	//print_trajectory_polynomial_coeff(poly_yaw);
 
 	plot_optimal_trajectory(poly_x, poly_y, poly_yaw, flight_time);
 }

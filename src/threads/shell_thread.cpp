@@ -19,7 +19,9 @@ struct cmd_list_entry shell_cmd_list[] = {
 void shell_greeting(void)
 {
 	char s[150];
-	sprintf(s, "firmware build time: %s %s\n\rtype `help' for help\n\r\n\r", __TIME__, __DATE__);
+	sprintf(s, "firmware build time: %s %s\n\rtype `help' for help\n\r\n\r"
+                   "use rviz to visualize uav pose and planned trajectory.\n\r\n\r",
+                   __TIME__, __DATE__);
 	shell_puts(s);
 }
 

@@ -55,7 +55,7 @@ bool wait_mavlink_polynomial_trajectory_ack(uint8_t *ack_val)
 		double current_time = ros::Time::now().toSec();
 		double elapsed_time = current_time - start_time;
 
-		/* three seconds timeout */
+		/* one seconds timeout */
 		if(elapsed_time >= 1.0f) {
 			return false;
 		}
