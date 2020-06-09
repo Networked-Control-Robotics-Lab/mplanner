@@ -9,7 +9,10 @@ enum ENUM_MAV_CMDS {
 	ENUM_HANDLER_FUNC(mavlink_local_position_ned_handler),
 	
 	/* mavlink extended messages */
-	ENUM_HANDLER_FUNC(mavlink_polynomial_trajectory_ack_handler)
+	ENUM_HANDLER_FUNC(mavlink_polynomial_trajectory_ack_handler),
+	ENUM_HANDLER_FUNC(mavlink_polynomial_trajectory_position_debug_handler),
+	ENUM_HANDLER_FUNC(mavlink_polynomial_trajectory_velocity_debug_handler),
+	ENUM_HANDLER_FUNC(mavlink_polynomial_trajectory_acceleration_debug_handler)
 };
 
 struct mavlink_parser_item cmd_list[] = {
@@ -18,7 +21,10 @@ struct mavlink_parser_item cmd_list[] = {
 	MAV_CMD_DEF(mavlink_local_position_ned_handler, 32),
 
 	/* mavlink extended messages */
-	MAV_CMD_DEF(mavlink_polynomial_trajectory_ack_handler, 11002)
+	MAV_CMD_DEF(mavlink_polynomial_trajectory_ack_handler, 11002),
+	MAV_CMD_DEF(mavlink_polynomial_trajectory_position_debug_handler, 11004),
+	MAV_CMD_DEF(mavlink_polynomial_trajectory_velocity_debug_handler, 11005),
+	MAV_CMD_DEF(mavlink_polynomial_trajectory_acceleration_debug_handler, 11006)
 };
 
 void parse_mavlink_received_msg(mavlink_message_t *msg)

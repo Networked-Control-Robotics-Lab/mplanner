@@ -2,6 +2,7 @@
 #include "../lib/mavlink_v2/ncrl_mavlink/mavlink.h"
 #include "ncrl_mavlink.h"
 #include "pose.hpp"
+#include "ros_thread.hpp"
 
 uav_pose_t uav_pose;
 
@@ -46,6 +47,41 @@ void mavlink_polynomial_trajectory_ack_handler(mavlink_message_t *received_msg)
 	received_traj_ack = true;
 }
 
+void mavlink_polynomial_trajectory_position_debug_handler(mavlink_message_t *received_msg)
+{
+	float curr_pos[3] = {0.0f};
+	float des_pos[3] = {0.0f};
+
+	mavlink_polynomial_trajectory_position_debug_t position_debug_data;
+	mavlink_msg_polynomial_trajectory_position_debug_decode(
+		received_msg, &position_debug_data);
+
+	update_uav_trajectory_position_debug(curr_pos, des_pos);
+}
+
+void mavlink_polynomial_trajectory_velocity_debug_handler(mavlink_message_t *received_msg)
+{
+	float curr_vel[3] = {0.0f};
+	float des_vel[3] = {0.0f};
+
+	mavlink_polynomial_trajectory_velocity_debug_t velocity_debug_data;
+	mavlink_msg_polynomial_trajectory_velocity_debug_decode(
+		received_msg, &velocity_debug_data);
+
+	update_uav_trajectory_velocity_debug(curr_vel, des_vel);
+}
+
+void mavlink_polynomial_trajectory_acceleration_debug_handler(mavlink_message_t *received_msg)
+{
+	float accel_ff[3] = {0.0f};
+
+	mavlink_polynomial_trajectory_acceleration_debug_t accel_debug_data;
+	mavlink_msg_polynomial_trajectory_acceleration_debug_decode(
+		received_msg, &accel_debug_data);
+
+	update_uav_trajectory_acceleration_debug(accel_ff);
+}
+
 bool wait_mavlink_polynomial_trajectory_ack(uint8_t *ack_val)
 {
 	double start_time = ros::Time::now().toSec();
@@ -66,3 +102,4 @@ bool wait_mavlink_polynomial_trajectory_ack(uint8_t *ack_val)
 	*ack_val = traj_ack_val;
 	return true;
 }
+
