@@ -98,9 +98,9 @@ void plot_optimal_trajectory(std::vector<double> &poly_x, std::vector<double> &p
 		}
 	}
 
-        //plt::plot(x, y);
-	//plt::show();
-	//plt::close();
+        plt::plot(x, y);
+	plt::show();
+	plt::close();
 }
 
 void plan_optimal_trajectory(trajectory_t *traj, int segment_cnts,
