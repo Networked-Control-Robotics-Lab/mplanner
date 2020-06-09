@@ -52,9 +52,21 @@ void mavlink_polynomial_trajectory_position_debug_handler(mavlink_message_t *rec
 	float curr_pos[3] = {0.0f};
 	float des_pos[3] = {0.0f};
 
-	mavlink_polynomial_trajectory_position_debug_t position_debug_data;
+	mavlink_polynomial_trajectory_position_debug_t pos_debug_data;
 	mavlink_msg_polynomial_trajectory_position_debug_decode(
-		received_msg, &position_debug_data);
+		received_msg, &pos_debug_data);
+
+	curr_pos[0] = pos_debug_data.x;
+	curr_pos[1] = pos_debug_data.y;
+	curr_pos[2] = pos_debug_data.z;
+	des_pos[0] = pos_debug_data.x_d;
+	des_pos[1] = pos_debug_data.y_d;
+	des_pos[2] = pos_debug_data.z_d;
+
+	//XXX
+	uav_pose.pos_ned[0] = pos_debug_data.x;
+	uav_pose.pos_ned[1] = pos_debug_data.y;
+	uav_pose.pos_ned[2] = pos_debug_data.z;
 
 	update_uav_trajectory_position_debug(curr_pos, des_pos);
 }
@@ -64,9 +76,16 @@ void mavlink_polynomial_trajectory_velocity_debug_handler(mavlink_message_t *rec
 	float curr_vel[3] = {0.0f};
 	float des_vel[3] = {0.0f};
 
-	mavlink_polynomial_trajectory_velocity_debug_t velocity_debug_data;
+	mavlink_polynomial_trajectory_velocity_debug_t vel_debug_data;
 	mavlink_msg_polynomial_trajectory_velocity_debug_decode(
-		received_msg, &velocity_debug_data);
+		received_msg, &vel_debug_data);
+
+	curr_vel[0] = vel_debug_data.vx;
+	curr_vel[1] = vel_debug_data.vy;
+	curr_vel[2] = vel_debug_data.vz;
+	des_vel[0] = vel_debug_data.vx_d;
+	des_vel[1] = vel_debug_data.vy_d;
+	des_vel[2] = vel_debug_data.vz_d;
 
 	update_uav_trajectory_velocity_debug(curr_vel, des_vel);
 }
@@ -78,6 +97,10 @@ void mavlink_polynomial_trajectory_acceleration_debug_handler(mavlink_message_t 
 	mavlink_polynomial_trajectory_acceleration_debug_t accel_debug_data;
 	mavlink_msg_polynomial_trajectory_acceleration_debug_decode(
 		received_msg, &accel_debug_data);
+
+	accel_ff[0] = accel_debug_data.ax_ff;
+	accel_ff[1] = accel_debug_data.ay_ff;
+	accel_ff[2] = accel_debug_data.az_ff;
 
 	update_uav_trajectory_acceleration_debug(accel_ff);
 }
