@@ -17,6 +17,10 @@ bool trajectory_follow_halt = false;
 
 void shell_cmd_help(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
+	printf("supported commands:\n\r"
+	       "takeoff\n\r"
+	       "land\n\r"
+	       "traj\n\r");
 }
 
 void shell_cmd_clear(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
@@ -244,17 +248,48 @@ void shell_cmd_traj_plan(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], in
 
 void shell_cmd_traj_start(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
-	printf("mavlink: send polynomial_trajectory_start message.\n\r");
-	send_mavlink_polynomial_trajectory_start(false);
+	char user_agree[CMD_LEN_MAX];
+	struct shell_struct shell;
+	shell_init_struct(&shell, "confirm trajectory following command [y/n]: ");
+	shell_cli(&shell);
+
+	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
+		printf("mavlink: send polynomial_trajectory_start message.\n\r");
+		send_mavlink_polynomial_trajectory_start(false);
+	} else {
+                printf("abort.\n\r");
+        }
+}
+
+void shell_cmd_traj_stop(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
+{
+	char user_agree[CMD_LEN_MAX];
+	struct shell_struct shell;
+	shell_init_struct(&shell, "confirm trajectory following command [y/n]: ");
+	shell_cli(&shell);
+
+	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
+		printf("mavlink: send polynomial_trajectory_stop message.\n\r");
+		send_mavlink_polynomial_trajectory_stop();
+	} else {
+                printf("abort.\n\r");
+        }
 }
 
 void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
-	if(param_cnt == 2) {
+	if(param_cnt == 1) {
+		printf("traj plan: plan trajectory\n\r"
+		       "traj start: start trajectoy following\n\r"
+		       "traj stop: stop trajectory following\n\r");
+	} else if(param_cnt == 2) {
 		if(strcmp(param_list[1], "plan") == 0) {
 			shell_cmd_traj_plan(param_list, param_cnt);
 		} else if(strcmp(param_list[1], "start") == 0) {
 			shell_cmd_traj_start(param_list, param_cnt);
+		} else if(strcmp(param_list[1], "stop") == 0) {
+			shell_cmd_traj_stop(param_list, param_cnt);
 		}
+
 	}
 }
