@@ -18,9 +18,13 @@ bool trajectory_follow_halt = false;
 void shell_cmd_help(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
 	printf("supported commands:\n\r"
-	       "takeoff\n\r"
-	       "land\n\r"
-	       "traj\n\r");
+	       "help\n\r"
+	       "clear\n\r"
+	       "exitj\n\r"
+               "quit\n\r"
+               "takeoff\n\r"
+               "land\n\r"
+               "traj\n\r");
 }
 
 void shell_cmd_clear(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
@@ -40,14 +44,6 @@ void shell_cmd_quit(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 	exit(0);
 }
 
-void shell_cmd_arm(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
-{
-}
-
-void shell_cmd_disarm(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
-{
-}
-
 void shell_cmd_takeoff(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
 	char user_agree[CMD_LEN_MAX];
@@ -55,8 +51,10 @@ void shell_cmd_takeoff(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int 
 	shell_init_struct(&shell, "confirm takeoff command [y/n]: ");
 	shell_cli(&shell);
 
+	uint8_t sys_id = 1;
+
 	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
-		send_mavlink_takeoff_cmd();
+		send_mavlink_takeoff_cmd(sys_id);
 		printf("takeoff mavlink message is sent.\n\r");
 
 		//TODO:receive ack message
@@ -71,8 +69,10 @@ void shell_cmd_land(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 	shell_init_struct(&shell, "confirm landing command [y/n]: ");
 	shell_cli(&shell);
 
+	uint8_t sys_id = 1;
+
 	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
-		send_mavlink_land_cmd();
+		send_mavlink_land_cmd(sys_id);
 
 		printf("landing mavlink message is sent.\n\r");
 
@@ -80,10 +80,6 @@ void shell_cmd_land(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 	} else {
 		printf("abort.\n\r");
 	}
-}
-
-void shell_cmd_fly(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
-{
 }
 
 bool send_poly_traj_write_and_confirm_recpt(uint8_t *traj_ack_val, uint8_t list_size,
