@@ -10,6 +10,7 @@
 #include "../mavlink/receiver.hpp"
 #include "quadshell.hpp"
 #include "trajectory.hpp"
+#include "serial.hpp"
 
 using namespace std;
 
@@ -79,20 +80,24 @@ void shell_cmd_land(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 {
 	struct shell_struct shell;
 
+	bool multiple_mode = false;
 	bool format_error = false;
-
 	float arg1_float, arg2_float;
 
 	if(param_cnt == 2) {
-		printf("single drone landing mode\n\r");
-
 		if(parse_float_from_str(param_list[1], &arg1_float) == false) {
-			printf("argument1 is not a proper number\n\r");
+			printf("[invalid id] argument1 is not a proper number\n\r");
 			format_error = true;
 		}
-	} else if(param_cnt == 3) {
-		printf("multiple drones landing mode\n\r");
 
+		float total_uav_cnt = get_registered_uav_count();
+		if(arg1_float > total_uav_cnt) {
+			printf("[invalid id] assigned id is out of the range of regestered uav numbers!\n\r");
+			format_error = true;
+		}
+
+		multiple_mode = false;
+	} else if(param_cnt == 3) {
 		if(parse_float_from_str(param_list[1], &arg1_float) == false) {
 			printf("[invaild id range] argument1 is not a proper number\n\r");
 			format_error = true;
@@ -108,10 +113,18 @@ void shell_cmd_land(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 			format_error = true;
 		}
 
-		if(arg1_float < 1 || arg2_float < 1) {
+		if((arg1_float < 1) || (arg2_float < 1)) {
 			printf("[invaild id range] system id must be greater than 1!\n\r");
 			format_error = true;
 		}
+
+		float total_uav_cnt = get_registered_uav_count();
+		if((arg1_float > total_uav_cnt) || (arg2_float > total_uav_cnt)) {
+			printf("[invalid id range] id range is out of the regestered uav numbers!\n\r");
+			format_error = true;
+		}
+
+		multiple_mode = true;
 	} else {
 		format_error = true;
 	}
@@ -128,9 +141,15 @@ void shell_cmd_land(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 	uint8_t sys_id = 1;
 
 	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
-		send_mavlink_land_cmd(sys_id);
-
-		printf("landing mavlink message is sent.\n\r");
+		if(multiple_mode == false) {
+			send_mavlink_land_cmd((int)arg1_float);
+			printf("landing command is sent to the drone #%d\n\r", (int)arg1_float);
+		} else {
+			for(int i = arg1_float; i <= arg2_float; i++) {
+				send_mavlink_land_cmd(i);
+				printf("landing command is sent to the drone #%d\n\r", i);
+			}
+		}
 
 		//TODO:receive ack message
 	} else {

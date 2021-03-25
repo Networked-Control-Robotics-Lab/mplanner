@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 	ros::init(argc, argv, "mplanner");
 	ros::Time::init();
 
-	serial_init("/dev/ttyUSB1", 115200);
+	reg_serial_with_uav(1, "/dev/ttyUSB1", 115200);
 
 	init_uav_pose(&uav_pose);
 

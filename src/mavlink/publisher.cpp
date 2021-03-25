@@ -4,12 +4,12 @@
 
 #define GROUND_STATION_ID 0 //according to the qgroundcontrol
 
-static void send_mavlink_msg_to_serial(mavlink_message_t *msg)
+static void send_mavlink_msg_to_serial(int uav_id, mavlink_message_t *msg)
 {
 	uint8_t buf[MAVLINK_MAX_PAYLOAD_LEN];
 	uint16_t len = mavlink_msg_to_send_buffer(buf, msg);
 
-	serial_puts((char *)buf, len);
+	serial_puts(uav_id, (char *)buf, len);
 }
 
 /*============================*
@@ -28,7 +28,7 @@ void send_mavlink_takeoff_cmd(uint8_t sys_id)
 	mavlink_msg_command_long_pack_chan(GROUND_STATION_ID, 1, MAVLINK_COMM_1, &msg, target_sys, target_comp,
 	                                   cmd, confirm, params[0], params[1], params[2], params[3],
 	                                   params[4], params[5], params[6]);
-	send_mavlink_msg_to_serial(&msg);
+	send_mavlink_msg_to_serial(sys_id, &msg);
 }
 
 void send_mavlink_land_cmd(uint8_t sys_id)
@@ -43,7 +43,7 @@ void send_mavlink_land_cmd(uint8_t sys_id)
 	mavlink_msg_command_long_pack_chan(GROUND_STATION_ID, 1, MAVLINK_COMM_1, &msg, target_sys, target_comp,
 	                                   cmd, confirm, params[0], params[1], params[2], params[3],
 	                                   params[4], params[5], params[6]);
-	send_mavlink_msg_to_serial(&msg);
+	send_mavlink_msg_to_serial(sys_id, &msg);
 }
 
 /*===========================*
@@ -70,7 +70,7 @@ void send_mavlink_goto_cmd(uint8_t sys_id, float *pos, float yaw)
 	mavlink_msg_command_long_pack_chan(GROUND_STATION_ID, 1, MAVLINK_COMM_1, &msg, target_sys, target_comp,
 	                                   cmd, confirm, params[0], params[1], params[2], params[3],
 	                                   params[4], params[5], params[6]);
-	send_mavlink_msg_to_serial(&msg);
+	send_mavlink_msg_to_serial(sys_id, &msg);
 }
 
 void send_mavlink_halt_cmd(uint8_t sys_id)
@@ -89,7 +89,7 @@ void send_mavlink_halt_cmd(uint8_t sys_id)
 	mavlink_msg_command_long_pack_chan(GROUND_STATION_ID, 1, MAVLINK_COMM_1, &msg, target_sys, target_comp,
 	                                   cmd, confirm, params[0], params[1], params[2], params[3],
 	                                   params[4], params[5], params[6]);
-	send_mavlink_msg_to_serial(&msg);
+	send_mavlink_msg_to_serial(sys_id, &msg);
 }
 
 void send_mavlink_mission_resume_cmd(uint8_t sys_id)
@@ -106,7 +106,7 @@ void send_mavlink_mission_resume_cmd(uint8_t sys_id)
 	mavlink_msg_command_long_pack_chan(GROUND_STATION_ID, 1, MAVLINK_COMM_1, &msg, target_sys, target_comp,
 	                                   cmd, confirm, params[0], params[1], params[2], params[3],
 	                                   params[4], params[5], params[6]);
-	send_mavlink_msg_to_serial(&msg);
+	send_mavlink_msg_to_serial(sys_id, &msg);
 }
 
 /*==============================*
@@ -124,7 +124,7 @@ void send_mavlink_polynomial_trajectory_start(bool loop)
 	mavlink_msg_polynomial_trajectory_cmd_pack_chan(GROUND_STATION_ID, 1, MAVLINK_COMM_1, &msg,
                                                         target_system, target_component,
                                                         TRAJECTORY_FOLLOWING_START, altitude_fixed);
-	send_mavlink_msg_to_serial(&msg);
+	send_mavlink_msg_to_serial(1, &msg);
 }
 
 void send_mavlink_polynomial_trajectory_stop()
@@ -137,7 +137,7 @@ void send_mavlink_polynomial_trajectory_stop()
 	mavlink_msg_polynomial_trajectory_cmd_pack_chan(GROUND_STATION_ID, 1, MAVLINK_COMM_1, &msg,
                                                         target_system, target_component,
                                                         TRAJECTORY_FOLLOWING_STOP, option);
-	send_mavlink_msg_to_serial(&msg);
+	send_mavlink_msg_to_serial(1, &msg);
 }
 
 void send_mavlink_polynomial_trajectory_write(uint8_t list_size, bool z_enabled, bool yaw_enabled)
@@ -152,7 +152,7 @@ void send_mavlink_polynomial_trajectory_write(uint8_t list_size, bool z_enabled,
 	mavlink_msg_polynomial_trajectory_write_pack_chan(GROUND_STATION_ID, 1, MAVLINK_COMM_1, &msg, target_system,
                                                           target_component, list_size,
                                                           _z_enabled, _yaw_enabled);
-	send_mavlink_msg_to_serial(&msg);
+	send_mavlink_msg_to_serial(1, &msg);
 }
 
 void send_mavlink_polynomial_trajectory_item(uint8_t index, uint8_t type, float *traj_poly_coeff,
@@ -166,5 +166,5 @@ void send_mavlink_polynomial_trajectory_item(uint8_t index, uint8_t type, float 
                                                     target_system, target_component,
                                                     type, index, traj_poly_coeff,
                                                     flight_time);
-	send_mavlink_msg_to_serial(&msg);
+	send_mavlink_msg_to_serial(1, &msg);
 }
