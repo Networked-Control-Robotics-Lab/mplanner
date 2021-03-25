@@ -15,6 +15,18 @@ using namespace std;
 
 bool trajectory_follow_halt = false;
 
+bool parse_float_from_str(char *str, float *value)
+{
+	char *end_ptr = NULL;
+	errno = 0;
+	*value = strtof(str, &end_ptr);
+	if (errno != 0 || *end_ptr != '\0') {
+		return false;
+	} else {
+		return true;
+	}
+}
+
 void shell_cmd_help(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
 	printf("supported commands:\n\r"
@@ -66,6 +78,50 @@ void shell_cmd_takeoff(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int 
 void shell_cmd_land(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
 	struct shell_struct shell;
+
+	bool format_error = false;
+
+	float arg1_float, arg2_float;
+
+	if(param_cnt == 2) {
+		printf("single drone landing mode\n\r");
+
+		if(parse_float_from_str(param_list[1], &arg1_float) == false) {
+			printf("argument1 is not a proper number\n\r");
+			format_error = true;
+		}
+	} else if(param_cnt == 3) {
+		printf("multiple drones landing mode\n\r");
+
+		if(parse_float_from_str(param_list[1], &arg1_float) == false) {
+			printf("[invaild id range] argument1 is not a proper number\n\r");
+			format_error = true;
+		}
+
+		if(parse_float_from_str(param_list[2], &arg2_float) == false) {
+			printf("[invaild id range] argument2 is not a proper number\n\r");
+			format_error = true;
+		}
+
+		if(arg1_float >= arg2_float) {
+			printf("[invaild id range] end id must be greater than start id!\n\r");
+			format_error = true;
+		}
+
+		if(arg1_float < 1 || arg2_float < 1) {
+			printf("[invaild id range] system id must be greater than 1!\n\r");
+			format_error = true;
+		}
+	} else {
+		format_error = true;
+	}
+
+	if(format_error == true) {
+		printf("land [id]: single drone landing\n\r"
+                       "land [id_start] [id_end]: multiple drone landing\n\r");
+		return;
+	}
+
 	shell_init_struct(&shell, "confirm landing command [y/n]: ");
 	shell_cli(&shell);
 
@@ -274,11 +330,7 @@ void shell_cmd_traj_stop(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], in
 
 void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
-	if(param_cnt == 1) {
-		printf("traj plan: plan trajectory\n\r"
-		       "traj start: start trajectoy following\n\r"
-		       "traj stop: stop trajectory following\n\r");
-	} else if(param_cnt == 2) {
+	if(param_cnt == 2) {
 		if(strcmp(param_list[1], "plan") == 0) {
 			shell_cmd_traj_plan(param_list, param_cnt);
 		} else if(strcmp(param_list[1], "start") == 0) {
@@ -287,5 +339,9 @@ void shell_cmd_traj(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 			shell_cmd_traj_stop(param_list, param_cnt);
 		}
 
+	} else {
+		printf("traj plan: plan trajectory\n\r"
+		       "traj start: start trajectoy following\n\r"
+		       "traj stop: stop trajectory following\n\r");
 	}
 }
