@@ -59,30 +59,13 @@ void shell_cmd_quit(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 
 void shell_cmd_takeoff(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
-	char user_agree[CMD_LEN_MAX];
-	struct shell_struct shell;
-	shell_init_struct(&shell, "confirm takeoff command [y/n]: ");
-	shell_cli(&shell);
-
-	uint8_t sys_id = 1;
-
-	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
-		send_mavlink_takeoff_cmd(sys_id);
-		printf("takeoff mavlink message is sent.\n\r");
-
-		//TODO:receive ack message
-	} else {
-		printf("abort.\n\r");
-	}
-}
-
-void shell_cmd_land(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
-{
 	struct shell_struct shell;
 
 	bool multiple_mode = false;
 	bool format_error = false;
+
 	float arg1_float, arg2_float;
+	int arg1, arg2;
 
 	if(param_cnt == 2) {
 		if(parse_float_from_str(param_list[1], &arg1_float) == false) {
@@ -90,9 +73,16 @@ void shell_cmd_land(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 			format_error = true;
 		}
 
+		arg1 = (int)arg1_float;
+
 		float total_uav_cnt = get_registered_uav_count();
-		if(arg1_float > total_uav_cnt) {
+		if(arg1 > total_uav_cnt) {
 			printf("[invalid id] assigned id is out of the range of regestered uav numbers!\n\r");
+			format_error = true;
+		}
+
+		if((arg1 < 1)) {
+			printf("[invaild id] system id must be greater than 1!\n\r");
 			format_error = true;
 		}
 
@@ -108,18 +98,115 @@ void shell_cmd_land(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 			format_error = true;
 		}
 
-		if(arg1_float >= arg2_float) {
+		arg1 = (int)arg1_float;
+		arg2 = (int)arg2_float;
+
+		if(arg1 >= arg2) {
 			printf("[invaild id range] end id must be greater than start id!\n\r");
 			format_error = true;
 		}
 
-		if((arg1_float < 1) || (arg2_float < 1)) {
+		if((arg1 < 1) || (arg2 < 1)) {
 			printf("[invaild id range] system id must be greater than 1!\n\r");
 			format_error = true;
 		}
 
 		float total_uav_cnt = get_registered_uav_count();
-		if((arg1_float > total_uav_cnt) || (arg2_float > total_uav_cnt)) {
+		if((arg1 > total_uav_cnt) || (arg2 > total_uav_cnt)) {
+			printf("[invalid id range] id range is out of the regestered uav numbers!\n\r");
+			format_error = true;
+		}
+
+		multiple_mode = true;
+	} else {
+		format_error = true;
+	}
+
+	if(format_error == true) {
+		printf("takeoff [id]: single drone takeoff\n\r"
+                       "takeoff [id_start] [id_end]: multiple drone takeoff\n\r");
+		return;
+	}
+
+	shell_init_struct(&shell, "confirm takeoff command [y/n]: ");
+	shell_cli(&shell);
+
+	uint8_t sys_id = 1;
+
+	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
+		if(multiple_mode == false) {
+			send_mavlink_takeoff_cmd(arg1);
+			printf("takeoff command is sent to the drone #%d\n\r", arg1);
+		} else {
+			for(int i = arg1; i <= arg2; i++) {
+				send_mavlink_land_cmd(i);
+				printf("takeoff command is sent to the drone #%d\n\r", i);
+			}
+		}
+
+		//TODO:receive ack message
+	} else {
+		printf("abort.\n\r");
+	}
+
+}
+
+void shell_cmd_land(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
+{
+	struct shell_struct shell;
+
+	bool multiple_mode = false;
+	bool format_error = false;
+
+	float arg1_float, arg2_float;
+	int arg1, arg2;
+
+	if(param_cnt == 2) {
+		if(parse_float_from_str(param_list[1], &arg1_float) == false) {
+			printf("[invalid id] argument1 is not a proper number\n\r");
+			format_error = true;
+		}
+
+		arg1 = (int)arg1_float;
+
+		float total_uav_cnt = get_registered_uav_count();
+		if(arg1 > total_uav_cnt) {
+			printf("[invalid id] assigned id is out of the range of regestered uav numbers!\n\r");
+			format_error = true;
+		}
+
+		if((arg1 < 1)) {
+			printf("[invaild id] system id must be greater than 1!\n\r");
+			format_error = true;
+		}
+
+		multiple_mode = false;
+	} else if(param_cnt == 3) {
+		if(parse_float_from_str(param_list[1], &arg1_float) == false) {
+			printf("[invaild id range] argument1 is not a proper number\n\r");
+			format_error = true;
+		}
+
+		if(parse_float_from_str(param_list[2], &arg2_float) == false) {
+			printf("[invaild id range] argument2 is not a proper number\n\r");
+			format_error = true;
+		}
+
+		arg1 = (int)arg1_float;
+		arg2 = (int)arg2_float;
+
+		if(arg1 >= arg2) {
+			printf("[invaild id range] end id must be greater than start id!\n\r");
+			format_error = true;
+		}
+
+		if((arg1 < 1) || (arg2 < 1)) {
+			printf("[invaild id range] system id must be greater than 1!\n\r");
+			format_error = true;
+		}
+
+		float total_uav_cnt = get_registered_uav_count();
+		if((arg1 > total_uav_cnt) || (arg2 > total_uav_cnt)) {
 			printf("[invalid id range] id range is out of the regestered uav numbers!\n\r");
 			format_error = true;
 		}
@@ -142,10 +229,10 @@ void shell_cmd_land(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int par
 
 	if(strcmp(shell.buf, "y") == 0 || strcmp(shell.buf, "Y") == 0) {
 		if(multiple_mode == false) {
-			send_mavlink_land_cmd((int)arg1_float);
-			printf("landing command is sent to the drone #%d\n\r", (int)arg1_float);
+			send_mavlink_land_cmd(arg1);
+			printf("landing command is sent to the drone #%d\n\r", arg1);
 		} else {
-			for(int i = arg1_float; i <= arg2_float; i++) {
+			for(int i = arg1; i <= arg2; i++) {
 				send_mavlink_land_cmd(i);
 				printf("landing command is sent to the drone #%d\n\r", i);
 			}

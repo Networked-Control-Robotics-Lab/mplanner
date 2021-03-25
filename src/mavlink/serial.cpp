@@ -20,7 +20,7 @@ int get_registered_uav_count()
 	return uav_cnt;
 }
 
-void reg_serial_with_uav(int id, char *port_name, int baudrate)
+void reg_serial_with_uav(int id, const char *port_name, int baudrate)
 {
 	if((id < 1) || (id > MAX_UAV_CNT)) {
 		ROS_FATAL("Vailed UAV id range is between 1~100!");
