@@ -14,7 +14,8 @@ void mavlink_thread_entry(void)
 {
 	char c;
 	while(1) {
-		if(serial_getc(&c) != -1) {
+		/* XXX: currently is only listen to the first uav */
+		if(serial_getc(1, &c) != -1) {
 			//std::cout << c;
 			received_mavlink_msg =
 			        mavlink_parse_char(MAVLINK_COMM_1, (uint8_t)c,

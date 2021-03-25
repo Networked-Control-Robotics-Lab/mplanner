@@ -8,16 +8,33 @@
 #include <string>
 #include "ros/ros.h"
 
+#define MAX_UAV_CNT 100
+
 using namespace std;
 
-int serial_fd = 0;
+int uav_cnt = 0;
+int serial_fd[MAX_UAV_CNT] = {0};
 
-void serial_init(const char *port_name, int baudrate)
+int get_registered_uav_count()
 {
-	//open the port
-	serial_fd = open(port_name, O_RDWR | O_NOCTTY | O_NONBLOCK);
+	return uav_cnt;
+}
 
-	if(serial_fd == -1) {
+void reg_serial_with_uav(int id, const char *port_name, int baudrate)
+{
+	if((id < 1) || (id > MAX_UAV_CNT)) {
+		ROS_FATAL("Vailed UAV id range is between 1~100!");
+		exit(0);
+	}
+
+	if(id != (uav_cnt + 1)) {
+		ROS_FATAL("Skipped id is not allowed for registering the UAV!");
+	}
+
+	//open the port
+	serial_fd[id-1] = open(port_name, O_RDWR | O_NOCTTY | O_NONBLOCK);
+
+	if(serial_fd[id] == -1) {
 		ROS_FATAL("Failed to open the serial port.");
 		exit(0);
 	}
@@ -25,7 +42,7 @@ void serial_init(const char *port_name, int baudrate)
 	//config the port
 	struct termios options;
 
-	tcgetattr(serial_fd, &options);
+	tcgetattr(serial_fd[id-1], &options);
 
 	options.c_cflag = CS8 | CLOCAL | CREAD;
 	options.c_iflag = IGNPAR;
@@ -47,16 +64,22 @@ void serial_init(const char *port_name, int baudrate)
 		exit(0);
 	}
 
-	tcflush(serial_fd, TCIFLUSH);
-	tcsetattr(serial_fd, TCSANOW, &options);
+	tcflush(serial_fd[id-1], TCIFLUSH);
+	tcsetattr(serial_fd[id-1], TCSANOW, &options);
+
+	uav_cnt++;
 }
 
-void serial_puts(char *s, size_t size)
+void serial_puts(int id, char *s, size_t size)
 {
-	write(serial_fd, s, size);
+	/* notice that uav id is start from 1 but arrary of serial
+	 * file descriptor is start from 0 */
+	write(serial_fd[id-1], s, size);
 }
 
-int serial_getc(char *c)
+int serial_getc(int id, char *c)
 {
-	return read(serial_fd, c, 1);
+	/* notice that uav id is start from 1 but arrary of serial
+         * file descriptor is start from 0 */
+	return read(serial_fd[id-1], c, 1);
 }

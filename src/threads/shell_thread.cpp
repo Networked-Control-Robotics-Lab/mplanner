@@ -10,18 +10,19 @@ struct cmd_list_entry shell_cmd_list[] = {
 	DEF_SHELL_CMD(clear)
 	DEF_SHELL_CMD(exit)
 	DEF_SHELL_CMD(quit)
-	DEF_SHELL_CMD(arm)
-	DEF_SHELL_CMD(disarm)
 	DEF_SHELL_CMD(takeoff)
 	DEF_SHELL_CMD(land)
-	DEF_SHELL_CMD(fly)
 	DEF_SHELL_CMD(traj)
 };
 
 void shell_greeting(void)
 {
+	printf("+-+-+-+-+-+-+-+-+-+\n\r"
+               "|M|-|P|l|a|n|n|e|r|\n\r"
+               "+-+-+-+-+-+-+-+-+-+\n\r\n\r");
+
 	char s[150];
-	sprintf(s, "firmware build time: %s %s\n\rtype `help' for help\n\r\n\r"
+	sprintf(s, "software build time: %s %s\n\rtype `help' for help\n\r\n\r"
                    "use rviz to visualize uav pose and planned trajectory.\n\r\n\r",
                    __TIME__, __DATE__);
 	shell_puts(s);

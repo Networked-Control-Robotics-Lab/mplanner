@@ -3,7 +3,7 @@ project(mplanner)
 
 set(CMAKE_BUILD_TYPE Debug)
 set(ROS_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "-std=c++0x  -g -static-libstdc++")
+set(CMAKE_CXX_FLAGS "-std=c++17 -g -static-libstdc++ -Wno-address-of-packed-member")
 
 find_package(PythonLibs REQUIRED)
 
