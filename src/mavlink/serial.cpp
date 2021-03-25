@@ -42,7 +42,7 @@ void reg_serial_with_uav(int id, const char *port_name, int baudrate)
 	//config the port
 	struct termios options;
 
-	tcgetattr(serial_fd[id], &options);
+	tcgetattr(serial_fd[id-1], &options);
 
 	options.c_cflag = CS8 | CLOCAL | CREAD;
 	options.c_iflag = IGNPAR;
@@ -64,8 +64,8 @@ void reg_serial_with_uav(int id, const char *port_name, int baudrate)
 		exit(0);
 	}
 
-	tcflush(serial_fd[id], TCIFLUSH);
-	tcsetattr(serial_fd[id], TCSANOW, &options);
+	tcflush(serial_fd[id-1], TCIFLUSH);
+	tcsetattr(serial_fd[id-1], TCSANOW, &options);
 
 	uav_cnt++;
 }
