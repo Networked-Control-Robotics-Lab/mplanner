@@ -139,7 +139,7 @@ void shell_cmd_takeoff(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int 
 			printf("takeoff command is sent to the drone #%d\n\r", arg1);
 		} else {
 			for(int i = arg1; i <= arg2; i++) {
-				send_mavlink_land_cmd(i);
+				send_mavlink_takeoff_cmd(i);
 				printf("takeoff command is sent to the drone #%d\n\r", i);
 			}
 		}

@@ -15,6 +15,7 @@ int main(int argc, char **argv)
 	ros::Time::init();
 
 	reg_serial_with_uav(1, "/dev/ttyUSB1", 115200);
+	//reg_serial_with_uav(2, "/dev/ttyUSB2", 115200);
 
 	init_uav_pose(&uav_pose);
 
