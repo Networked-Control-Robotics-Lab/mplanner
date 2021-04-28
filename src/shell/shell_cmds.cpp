@@ -300,9 +300,9 @@ bool send_poly_traj_item_and_confirm_recpt(uint8_t *traj_ack_val, uint8_t index,
 	return false;
 }
 
-void plan_trajactory_shape_pretzel(trajectory_t *traj, int &traj_list_size,
-		                   vector<double> &x_coeff_full, vector<double> &y_coeff_full,
-                                   vector<double> &z_coeff_full, vector<double> &yaw_coeff_full)
+void plan_trajactory_shape_heart(trajectory_t *traj, int &traj_list_size,
+                                 vector<double> &x_coeff_full, vector<double> &y_coeff_full,
+                                 vector<double> &z_coeff_full, vector<double> &yaw_coeff_full)
 {
 	traj[0].start.pos[0] = 0;
 	traj[0].start.pos[1] = 0;
@@ -343,6 +343,73 @@ void plan_trajactory_shape_pretzel(trajectory_t *traj, int &traj_list_size,
 
 }
 
+void plan_trajactory_shape_eight(trajectory_t *traj, int &traj_list_size,
+		                 vector<double> &x_coeff_full, vector<double> &y_coeff_full,
+                                 vector<double> &z_coeff_full, vector<double> &yaw_coeff_full)
+{
+	float duration = 2.0f;
+	traj[0].start.pos[0] = 0;
+	traj[0].start.pos[1] = 0;
+	traj[0].start.pos[2] = 0.6f;
+	traj[0].end.pos[0] = 0.25;
+	traj[0].end.pos[1] = -0.4f;
+	traj[0].end.pos[2] = 0.6f;
+	traj[0].flight_time = duration;
+
+	traj[1].start.pos[0] = 0.25f;
+	traj[1].start.pos[1] = -0.4f;
+	traj[1].start.pos[2] = 0.6f;
+	traj[1].end.pos[0] = 1.2f;
+	traj[1].end.pos[1] = 0.0f;
+	traj[1].end.pos[2] = 0.6f;
+	traj[1].flight_time = duration;
+
+	traj[2].start.pos[0] = 1.2f;
+	traj[2].start.pos[1] = 0.0f;
+	traj[2].start.pos[2] = 0.6f;
+	traj[2].end.pos[0] = 0.25f;
+	traj[2].end.pos[1] = 0.5f;
+	traj[2].end.pos[2] = 0.6f;
+	traj[2].flight_time = duration;
+
+	traj[3].start.pos[0] = 0.25f;
+	traj[3].start.pos[1] = 0.5f;
+	traj[3].start.pos[2] = 0.6f;
+	traj[3].end.pos[0] = -0.4f;
+	traj[3].end.pos[1] = -0.5f;
+	traj[3].end.pos[2] = 0.6f;
+	traj[3].flight_time = duration;
+
+	traj[4].start.pos[0] = -0.4f;
+	traj[4].start.pos[1] = -0.5f;
+	traj[4].start.pos[2] = 0.6f;
+	traj[4].end.pos[0] = -1.2f;
+	traj[4].end.pos[1] = 0.0f;
+	traj[4].end.pos[2] = 0.6f;
+	traj[4].flight_time = duration;
+
+	traj[5].start.pos[0] = -1.2f;
+	traj[5].start.pos[1] = 0.0f;
+	traj[5].start.pos[2] = 0.6f;
+	traj[5].end.pos[0] = -0.4f;
+	traj[5].end.pos[1] = 0.5f;
+	traj[5].end.pos[2] = 0.6f;
+	traj[5].flight_time = duration;
+
+	traj[6].start.pos[0] = -0.4f;
+	traj[6].start.pos[1] = 0.5f;
+	traj[6].start.pos[2] = 0.6f;
+	traj[6].end.pos[0] = 0.0f;
+	traj[6].end.pos[1] = 0.0f;
+	traj[6].end.pos[2] = 0.6f;
+	traj[6].flight_time = duration;
+
+	traj_list_size = 7;
+
+	plan_optimal_trajectory(traj, traj_list_size, x_coeff_full, y_coeff_full,
+                                z_coeff_full, yaw_coeff_full);
+}
+
 void shell_cmd_traj_plan(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], int param_cnt)
 {
 	char user_agree[CMD_LEN_MAX];
@@ -356,8 +423,11 @@ void shell_cmd_traj_plan(char param_list[PARAM_LIST_SIZE_MAX][PARAM_LEN_MAX], in
 		vector<double> x_coeff_full, y_coeff_full, z_coeff_full;
 		vector<double> yaw_coeff_full;
 
-		plan_trajactory_shape_pretzel(traj, traj_list_size, x_coeff_full, y_coeff_full,
-                                              z_coeff_full, yaw_coeff_full);
+		plan_trajactory_shape_heart(traj, traj_list_size, x_coeff_full, y_coeff_full,
+                                            z_coeff_full, yaw_coeff_full);
+
+		//plan_trajactory_shape_eight(traj, traj_list_size, x_coeff_full, y_coeff_full,
+		//		            z_coeff_full, yaw_coeff_full);
 		uint8_t traj_ack_val;
 
 		if(!send_poly_traj_write_and_confirm_recpt(&traj_ack_val, traj_list_size,
