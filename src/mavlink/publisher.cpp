@@ -115,7 +115,7 @@ void send_mavlink_mission_resume_cmd(uint8_t sys_id)
 
 void send_mavlink_polynomial_trajectory_start(bool loop)
 {
-	bool altitude_fixed = true;
+	bool looping = true;
 
 	uint8_t target_system = 1; //XXX: fixed to the first UAV
 	uint8_t target_component = 0;
@@ -123,7 +123,7 @@ void send_mavlink_polynomial_trajectory_start(bool loop)
 	mavlink_message_t msg;
 	mavlink_msg_polynomial_trajectory_cmd_pack_chan(GROUND_STATION_ID, 1, MAVLINK_COMM_1, &msg,
                                                         target_system, target_component,
-                                                        TRAJECTORY_FOLLOWING_START, altitude_fixed);
+                                                        TRAJECTORY_FOLLOWING_START, looping);
 	send_mavlink_msg_to_serial(1, &msg);
 }
 
